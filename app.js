@@ -21,6 +21,8 @@ const tours = JSON.parse(
 );
 
 // the ROUTE handler is the callback fun that handle the req
+
+// --------------------------- GET ALL TOURS
 app.get('/api/v1/tours', (req, res) => {
   res.status(200).json({
     status: 'success',
@@ -29,6 +31,23 @@ app.get('/api/v1/tours', (req, res) => {
   });
 });
 
+// -------------------------- GET TOUR WITH ID
+app.get('/api/v1/tours/:id', (req, res) => {
+  const id = +req.params.id;
+  const tour = tours.find((el) => el.id === id);
+
+  console.log(tours.length);
+  // if (id >= tours.length)
+  if (!tour)
+    return res.status(404).json({
+      status: 'fail',
+      message: `Invalid id ${id}`,
+    });
+
+  res.status(200).json({ status: 'success', data: { tour } });
+});
+
+// -------------------------- CREATE TOUR
 app.post('/api/v1/tours', (req, res) => {
   const newId = tours[tours.length - 1].id + 1;
   const newTour = Object.assign({ id: newId }, req.body);
@@ -39,6 +58,7 @@ app.post('/api/v1/tours', (req, res) => {
     `${__dirname}/dev-data/data/tours-simple.json`,
     JSON.stringify(tours),
     (err) => {
+      // the status code 201 is for data is created
       res.status(201).json({ stasus: 'success', data: { tour: newTour } });
     }
   );
