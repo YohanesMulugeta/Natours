@@ -64,6 +64,29 @@ app.post('/api/v1/tours', (req, res) => {
   );
 });
 
+// ---------------------------- UPDATE TOUR
+app.patch('/api/v1/tours/:id', (req, res) => {
+  const id = req.params.id * 1;
+  const tour = tours.find((el) => el.id === id);
+
+  // GUARD KEY
+  if (!tour)
+    return res
+      .status(404)
+      .json({ status: 'fail', message: `Invalid id ${id}` });
+
+  const newTour = { ...tour, ...req.body };
+
+  res.status(201).json({
+    status: 'success',
+    results: 2,
+    data: {
+      tour,
+      newTour,
+    },
+  });
+});
+
 const port = 3000;
 app.listen(port, () => {
   console.log(`App runing at port ${port}...`);
