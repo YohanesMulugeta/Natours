@@ -86,16 +86,23 @@ function deleteTour(req, res) {
 }
 
 // ROUTS
-// --------------------------- GET ALL TOURS
-app.get('/api/v1/tours', getAllTours);
-// -------------------------- GET TOUR WITH ID
-app.get('/api/v1/tours/:id', getTourById);
-// -------------------------- CREATE TOUR
-app.post('/api/v1/tours', createNewTour);
-// ---------------------------- UPDATE TOUR
-app.patch('/api/v1/tours/:id', updateTour);
-// ---------------------------- DELETE TOUR
-app.delete('/api/v1/tours/:id', deleteTour);
+
+// // -------------------------- GET TOUR WITH ID
+// app.get('/api/v1/tours/:id', getTourById);
+// // -------------------------- CREATE TOUR
+// app.post('/api/v1/tours', createNewTour);
+// // ---------------------------- UPDATE TOUR
+// app.patch('/api/v1/tours/:id', updateTour);
+// // ---------------------------- DELETE TOUR
+// app.delete('/api/v1/tours/:id', deleteTour);
+
+app.route('/api/v1/tours').get(getAllTours).post(createNewTour);
+
+app
+  .route('/api/v1/tours/:id')
+  .get(getTourById)
+  .patch(updateTour)
+  .delete(deleteTour);
 
 const port = 3000;
 app.listen(port, () => {
