@@ -5,6 +5,17 @@ const app = express();
 // applying MIDDLEWARES
 app.use(express.json());
 
+app.use((req, res, next) => {
+  console.log('Hello from the middleware');
+  next();
+});
+
+app.use((req, res, next) => {
+  req.reqTime = new Date().toISOString();
+
+  next();
+});
+
 // Top level READING
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
@@ -14,6 +25,7 @@ const tours = JSON.parse(
 function getAllTours(req, res) {
   res.status(200).json({
     status: 'success',
+    requestTime: req.reqTime,
     results: tours.length,
     data: { tours },
   });
@@ -85,7 +97,7 @@ function deleteTour(req, res) {
   });
 }
 
-// ROUTS
+// ROUTS with individual http methods
 
 // // -------------------------- GET TOUR WITH ID
 // app.get('/api/v1/tours/:id', getTourById);
@@ -96,6 +108,7 @@ function deleteTour(req, res) {
 // // ---------------------------- DELETE TOUR
 // app.delete('/api/v1/tours/:id', deleteTour);
 
+// ROUTS WITH CHAINING HTTP METHODS
 app.route('/api/v1/tours').get(getAllTours).post(createNewTour);
 
 app
