@@ -5,34 +5,21 @@ const app = express();
 // applying MIDDLEWARES
 app.use(express.json());
 
-// app.get('/', (req, res) => {
-//   res
-//     .status(200)
-//     .json({ message: 'Hello from the server side', authod: 'Yohanes' });
-// });
-
-// app.post('/', (req, res) => {
-//   res.status(200).send('You can post to this endpoint...');
-// });
-
 // Top level READING
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
 
-// the ROUTE handler is the callback fun that handle the req
-
-// --------------------------- GET ALL TOURS
-app.get('/api/v1/tours', (req, res) => {
+// the ROUTE HANDLERS is the callback fun that handle the req
+function getAllTours(req, res) {
   res.status(200).json({
     status: 'success',
     results: tours.length,
     data: { tours },
   });
-});
+}
 
-// -------------------------- GET TOUR WITH ID
-app.get('/api/v1/tours/:id', (req, res) => {
+function getTourById(req, res) {
   const id = +req.params.id;
   const tour = tours.find((el) => el.id === id);
 
@@ -45,10 +32,9 @@ app.get('/api/v1/tours/:id', (req, res) => {
     });
 
   res.status(200).json({ status: 'success', data: { tour } });
-});
+}
 
-// -------------------------- CREATE TOUR
-app.post('/api/v1/tours', (req, res) => {
+function createNewTour(req, res) {
   const newId = tours[tours.length - 1].id + 1;
   const newTour = Object.assign({ id: newId }, req.body);
 
@@ -62,10 +48,9 @@ app.post('/api/v1/tours', (req, res) => {
       res.status(201).json({ stasus: 'success', data: { tour: newTour } });
     }
   );
-});
+}
 
-// ---------------------------- UPDATE TOUR
-app.patch('/api/v1/tours/:id', (req, res) => {
+function updateTour(req, res) {
   const id = +req.params.id;
   const tour = tours.find((el) => el.id === id);
 
@@ -85,10 +70,9 @@ app.patch('/api/v1/tours/:id', (req, res) => {
       newTour,
     },
   });
-});
+}
 
-// ---------------------------- DELETE TOUR
-app.delete('/api/v1/tours/:id', (req, res) => {
+function deleteTour(req, res) {
   const id = +req.params.id;
   const tour = tours.find((el) => el.id === id);
 
@@ -99,7 +83,19 @@ app.delete('/api/v1/tours/:id', (req, res) => {
     status: 'success',
     data: null,
   });
-});
+}
+
+// ROUTS
+// --------------------------- GET ALL TOURS
+app.get('/api/v1/tours', getAllTours);
+// -------------------------- GET TOUR WITH ID
+app.get('/api/v1/tours/:id', getTourById);
+// -------------------------- CREATE TOUR
+app.post('/api/v1/tours', createNewTour);
+// ---------------------------- UPDATE TOUR
+app.patch('/api/v1/tours/:id', updateTour);
+// ---------------------------- DELETE TOUR
+app.delete('/api/v1/tours/:id', deleteTour);
 
 const port = 3000;
 app.listen(port, () => {
