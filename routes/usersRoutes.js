@@ -1,8 +1,16 @@
 const express = require('express');
+const {
+  getAllUsers,
+  createUser,
+  getUserById,
+  updateUser,
+  deleteUser,
+} = require('../controllers/usersController');
 
+// 1) CREATING THE ROUTER
 const router = express.Router();
 
-// 1) ROUTES
+// 1) HANDLING ROUTES
 router.route('/').get(getAllUsers).post(createUser);
 
 router
@@ -12,36 +20,5 @@ router
   .delete(deleteUser);
 
 //   2) ROUTE HANDLERS
-function getAllUsers(req, res) {
-  res.status(500).json({
-    status: 'Error',
-    message: 'This route is not yet defined!',
-  });
-}
-
-function createUser(req, res) {
-  res.status(500).json({
-    status: 'Error',
-    message: 'This route is not yet defined!',
-  });
-}
-function getUserById(req, res) {
-  res.status(500).json({
-    status: 'Error',
-    message: 'This route is not yet defined!',
-  });
-}
-function updateUser(req, res) {
-  res.status(500).json({
-    status: 'Error',
-    message: 'This route is not yet defined!',
-  });
-}
-function deleteUser(req, res) {
-  res.status(500).json({
-    status: 'Error',
-    message: 'This route is not yet defined!',
-  });
-}
 
 module.exports = router;
