@@ -23,7 +23,9 @@ app.use((req, res, next) => {
 
 // 2) TOP LEVEL READING
 const tours = JSON.parse(
-  fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
+  fs.readFileSync(
+    `${__dirname}/dev-data/data/tours-simple.json`
+  )
 );
 
 const users = JSON.parse(
@@ -52,7 +54,9 @@ function getTourById(req, res) {
       message: `Invalid id ${id}`,
     });
 
-  res.status(200).json({ status: 'success', data: { tour } });
+  res
+    .status(200)
+    .json({ status: 'success', data: { tour } });
 }
 
 function createNewTour(req, res) {
@@ -66,7 +70,10 @@ function createNewTour(req, res) {
     JSON.stringify(tours),
     (err) => {
       // the status code 201 is for data is created
-      res.status(201).json({ stasus: 'success', data: { tour: newTour } });
+      res.status(201).json({
+        stasus: 'success',
+        data: { tour: newTour },
+      });
     }
   );
 }
@@ -77,9 +84,10 @@ function updateTour(req, res) {
 
   // GUARD KEY
   if (!tour)
-    return res
-      .status(404)
-      .json({ status: 'fail', message: `Invalid id ${id}` });
+    return res.status(404).json({
+      status: 'fail',
+      message: `Invalid id ${id}`,
+    });
 
   const newTour = { ...tour, ...req.body };
 
@@ -97,7 +105,8 @@ function deleteTour(req, res) {
   const id = +req.params.id;
   const tour = tours.find((el) => el.id === id);
 
-  if (!tour) return res.status(404).send('Could not find the tour');
+  if (!tour)
+    return res.status(404).send('Could not find the tour');
 
   const newTour = tours.filter((el) => el.id !== id);
   res.status(204).json({
@@ -150,21 +159,27 @@ function deleteUser(req, res) {
 // app.delete('/api/v1/tours/:id', deleteTour);
 
 // 4) ROUTS WITH CHAINING HTTP METHODS
-app.route('/api/v1/tours').get(getAllTours).post(createNewTour);
+const tourRouter = express.Router();
+const usersRouter = express.Router();
 
-app
-  .route('/api/v1/tours/:id')
+tourRouter.route('/').get(getAllTours).post(createNewTour);
+
+tourRouter
+  .route('/:id')
   .get(getTourById)
   .patch(updateTour)
   .delete(deleteTour);
 
-app.route('/api/v1/users').get(getAllUsers).post(createUser);
+usersRouter.route('/').get(getAllUsers).post(createUser);
 
-app
-  .route('/appi/v1/users/:id')
+usersRouter
+  .route('/:id')
   .get(getUserById)
   .patch(updateUser)
   .delete(deleteUser);
+
+app.use('/api/v1/tours', tourRouter);
+app.use('/api/v1/users', usersRouter);
 
 // 5) STARTING OUR SERVER
 const port = 3000;
