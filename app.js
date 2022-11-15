@@ -9,13 +9,8 @@ const app = express();
 
 app.use(morgan('dev'));
 
-// applying MIDDLEWARES
+// applying MIDDLEWARES for puting the data send from the client to be inside the req.body
 app.use(express.json());
-
-// app.use((req, res, next) => {
-//   console.log('Hello from the middleware');
-//   next();
-// });
 
 app.use((req, res, next) => {
   req.reqTime = new Date().toISOString();
@@ -27,8 +22,4 @@ app.use((req, res, next) => {
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', usersRouter);
 
-// 5) STARTING OUR SERVER
-const port = 3000;
-app.listen(port, () => {
-  console.log(`App runing at port ${port}...`);
-});
+module.exports = app;
