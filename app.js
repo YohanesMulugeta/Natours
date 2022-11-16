@@ -5,12 +5,14 @@ const tourRouter = require('./routes/tourRoutes');
 const usersRouter = require('./routes/usersRoutes');
 
 const app = express();
-// 1) MIDDLEWARES
 
-app.use(morgan('dev'));
-
+// 1) MIDDLEWARE DECLARATION
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 // applying MIDDLEWARES for puting the data send from the client to be inside the req.body
 app.use(express.json());
+app.use(express.static(`${__dirname}/public`));
 
 app.use((req, res, next) => {
   req.reqTime = new Date().toISOString();
