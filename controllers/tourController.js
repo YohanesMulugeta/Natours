@@ -8,6 +8,14 @@ const tours = JSON.parse(
 );
 
 // 2) TOURS ROUTES HANDLERS
+exports.checkId = function (req, res, next, id) {
+  if (id >= tours.length)
+    return res
+      .status(404)
+      .json({ status: 'Fail', message: 'Invalid ID' });
+
+  next();
+};
 exports.getAllTours = function (req, res) {
   res.status(200).json({
     status: 'success',
@@ -21,13 +29,12 @@ exports.getTourById = function (req, res) {
   const id = +req.params.id;
   const tour = tours.find((el) => el.id === id);
 
-  console.log(tours.length);
-  // if (id >= tours.length)
-  if (!tour)
-    return res.status(404).json({
-      status: 'fail',
-      message: `Invalid id ${id}`,
-    });
+  // // if (id >= tours.length)
+  // if (!tour)
+  //   return res.status(404).json({
+  //     status: 'fail',
+  //     message: `Invalid id ${id}`,
+  //   });
 
   res
     .status(200)
@@ -58,11 +65,11 @@ exports.updateTour = function (req, res) {
   const tour = tours.find((el) => el.id === id);
 
   // GUARD KEY
-  if (!tour)
-    return res.status(404).json({
-      status: 'fail',
-      message: `Invalid id ${id}`,
-    });
+  // if (!tour)
+  //   return res.status(404).json({
+  //     status: 'fail',
+  //     message: `Invalid id ${id}`,
+  //   });
 
   const newTour = { ...tour, ...req.body };
 
@@ -80,8 +87,8 @@ exports.deleteTour = function (req, res) {
   const id = +req.params.id;
   const tour = tours.find((el) => el.id === id);
 
-  if (!tour)
-    return res.status(404).send('Could not find the tour');
+  // if (!tour)
+  //   return res.status(404).send('Could not find the tour');
 
   const newTour = tours.filter((el) => el.id !== id);
   res.status(204).json({
