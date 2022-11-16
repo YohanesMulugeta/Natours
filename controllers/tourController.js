@@ -16,6 +16,17 @@ exports.checkId = function (req, res, next, id) {
 
   next();
 };
+
+exports.checkBody = function (req, res, next) {
+  if (!req.body.name || !req.body.price) {
+    return res.status(400).json({
+      status: 'Fail',
+      message: 'Missing name or price',
+    });
+  }
+
+  next();
+};
 exports.getAllTours = function (req, res) {
   res.status(200).json({
     status: 'success',
