@@ -10,7 +10,7 @@ const DB = process.env.DATABASE.replace(
 );
 
 (async () => {
-  const con = await mongoose.connect(DB, {
+  await mongoose.connect(DB, {
     useNewUrlParser: true,
     useCreateIndex: true,
     useFindAndModify: false,
@@ -35,6 +35,21 @@ const tourSchema = new mongoose.Schema({
 });
 
 const Tour = mongoose.model('Tour', tourSchema);
+
+const testTour = new Tour({
+  name: 'Forest Hiker',
+  price: '497',
+});
+
+(async () => {
+  try {
+    const doc = await testTour.save();
+
+    console.log(doc);
+  } catch (err) {
+    console.log('ERROR', err);
+  }
+})();
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
