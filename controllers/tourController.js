@@ -1,107 +1,121 @@
-const fs = require('fs');
+/* eslint-disable prefer-object-spread */
+/* eslint-disable node/no-unsupported-features/es-syntax */
+// const fs = require('fs');
+
+const Tour = require('../model/tourModel');
 
 // 1) TOP LEVEL READING
-const tours = JSON.parse(
-  fs.readFileSync(
-    `${__dirname}/../dev-data/data/tours-simple.json`
-  )
-);
+// const tours = JSON.parse(
+//   fs.readFileSync(
+//     `${__dirname}/../dev-data/data/tours-simple.json`
+//   )
+// );
 
 // 2) TOURS ROUTES HANDLERS
-exports.checkId = function (req, res, next, id) {
-  if (id >= tours.length)
-    return res
-      .status(404)
-      .json({ status: 'Fail', message: 'Invalid ID' });
+// exports.checkId = function (req, res, next, id) {
+// if (id >= tours.length)
+//   return res
+//     .status(404)
+//     .json({ status: 'Fail', message: 'Invalid ID' });
 
-  next();
-};
+// next();
+// };
 
-exports.checkBody = function (req, res, next) {
-  if (!req.body.name || !req.body.price) {
-    return res.status(400).json({
-      status: 'Fail',
-      message: 'Missing name or price',
+// exports.checkBody = function (req, res, next) {
+//   if (!req.body.name || !req.body.price) {
+//     return res.status(400).json({
+//       status: 'Fail',
+//       message: 'Missing name or price',
+//     });
+//   }
+
+//   next();
+// };
+exports.getAllTours = async function (req, res) {
+  try {
+    const tours = await Tour.find();
+
+    res.status(200).json({
+      status: 'success',
+      results: tours.length,
+      data: { tours },
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'fail',
     });
   }
-
-  next();
-};
-exports.getAllTours = function (req, res) {
-  res.status(200).json({
-    status: 'success',
-    requestTime: req.reqTime,
-    results: tours.length,
-    data: { tours },
-  });
 };
 
-exports.getTourById = function (req, res) {
-  const id = +req.params.id;
-  const tour = tours.find((el) => el.id === id);
+exports.getTourById = async function (req, res) {
+  try {
+    const { id } = req.params;
 
-  // // if (id >= tours.length)
-  // if (!tour)
-  //   return res.status(404).json({
-  //     status: 'fail',
-  //     message: `Invalid id ${id}`,
-  //   });
+    const tour = await Tour.findById(id);
+    // Tour.findOne({ _id: id })
 
-  res
-    .status(200)
-    .json({ status: 'success', data: { tour } });
+    res.status(200).json({
+      status: 'success',
+      data: { tour },
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'Fail',
+      message: err,
+    });
+  }
 };
 
-exports.createNewTour = function (req, res) {
-  const newId = tours[tours.length - 1].id + 1;
-  const newTour = Object.assign({ id: newId }, req.body);
+exports.createNewTour = async function (req, res) {
+  try {
+    // const newTour = new Tour()
+    // newTour.save()
 
-  tours.push(newTour);
+    // This creates the tour object and saves it on the MONGODB
+    const newTour = await Tour.create(req.body);
 
-  fs.writeFile(
-    `${__dirname}/dev-data/data/tours-simple.json`,
-    JSON.stringify(tours),
-    (err) => {
-      // the status code 201 is for data is created
-      res.status(201).json({
-        stasus: 'success',
-        data: { tour: newTour },
-      });
-    }
-  );
+    res.status(200).json({
+      status: 'succes',
+      data: {
+        tour: newTour,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'Fail',
+      message: 'Bad Request',
+    });
+  }
 };
 
-exports.updateTour = function (req, res) {
-  const id = +req.params.id;
-  const tour = tours.find((el) => el.id === id);
-
-  // GUARD KEY
-  // if (!tour)
-  //   return res.status(404).json({
-  //     status: 'fail',
-  //     message: `Invalid id ${id}`,
-  //   });
-
-  const newTour = { ...tour, ...req.body };
-
-  res.status(201).json({
-    status: 'success',
-    results: 2,
-    data: {
-      tour,
-      newTour,
-    },
-  });
+exports.updateTour = async function (req, res) {
+  try {
+    const { id } = req.params;
+    const updatedTour = await Tour.findByIdAndUpdate(
+      id,
+      req.body,
+      {
+        new: true,
+        runValidators: false,
+      }
+    ); // this sets the returned value will be the new one
+    res.status(200).json({
+      status: 'success',
+      data: { tour: updatedTour },
+    });
+  } catch (err) {
+    res.status(404).json({ status: 'Fail' });
+  }
 };
 
 exports.deleteTour = function (req, res) {
-  const id = +req.params.id;
-  const tour = tours.find((el) => el.id === id);
+  // const id = +req.params.id;
+  // const tour = tours.find((el) => el.id === id);
 
   // if (!tour)
   //   return res.status(404).send('Could not find the tour');
 
-  const newTour = tours.filter((el) => el.id !== id);
+  // const newTour = tours.filter((el) => el.id !== id);
   res.status(204).json({
     status: 'success',
     data: null,
