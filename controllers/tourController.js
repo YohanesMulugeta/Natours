@@ -1,6 +1,5 @@
 /* eslint-disable prefer-object-spread */
 /* eslint-disable node/no-unsupported-features/es-syntax */
-const fs = require('fs');
 
 const Tour = require('../model/tourModel');
 
@@ -118,15 +117,26 @@ exports.deleteTour = async function (req, res) {
   }
 };
 
-exports.init = function () {
-  const starter = JSON.parse(
-    fs.readFileSync(
-      `${__dirname}/../dev-data/data/tours-simple.json`,
-      'utf-8'
-    )
-  );
+exports.importDataToDatabase = async function (tours) {
+  try {
+    await Tour.create(tours);
 
-  starter.forEach((tour) => {
-    Tour.create(tour);
-  });
+    console.log(
+      'Tours are exported to mongodb database successfully'
+    );
+  } catch (err) {
+    console.log(err);
+  }
+  process.exit();
+};
+
+exports.clearDatabase = async function () {
+  try {
+    await Tour.deleteMany();
+
+    console.log('DataBase is cleared');
+  } catch (err) {
+    console.log(err);
+  }
+  process.exit();
 };
