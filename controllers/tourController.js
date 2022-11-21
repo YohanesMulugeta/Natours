@@ -108,16 +108,12 @@ exports.updateTour = async function (req, res) {
   }
 };
 
-exports.deleteTour = function (req, res) {
-  // const id = +req.params.id;
-  // const tour = tours.find((el) => el.id === id);
-
-  // if (!tour)
-  //   return res.status(404).send('Could not find the tour');
-
-  // const newTour = tours.filter((el) => el.id !== id);
-  res.status(204).json({
-    status: 'success',
-    data: null,
-  });
+exports.deleteTour = async function (req, res) {
+  try {
+    const { id } = req.params;
+    await Tour.findByIdAndDelete(id);
+    res.status(204).json({ status: 'success', data: null });
+  } catch (err) {
+    res.status(400).json({ status: 'Fail', message: err });
+  }
 };
