@@ -1,6 +1,6 @@
 /* eslint-disable prefer-object-spread */
 /* eslint-disable node/no-unsupported-features/es-syntax */
-// const fs = require('fs');
+const fs = require('fs');
 
 const Tour = require('../model/tourModel');
 
@@ -83,7 +83,7 @@ exports.createNewTour = async function (req, res) {
   } catch (err) {
     res.status(400).json({
       status: 'Fail',
-      message: 'Bad Request',
+      message: err,
     });
   }
 };
@@ -116,4 +116,17 @@ exports.deleteTour = async function (req, res) {
   } catch (err) {
     res.status(400).json({ status: 'Fail', message: err });
   }
+};
+
+exports.init = function () {
+  const starter = JSON.parse(
+    fs.readFileSync(
+      `${__dirname}/../dev-data/data/tours-simple.json`,
+      'utf-8'
+    )
+  );
+
+  starter.forEach((tour) => {
+    Tour.create(tour);
+  });
 };
