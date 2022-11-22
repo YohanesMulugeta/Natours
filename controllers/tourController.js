@@ -38,14 +38,17 @@ exports.getAllTours = async function (req, res) {
       delete queryObj[el];
     });
 
-    // 1) BUILD QUERY
-    const query = Tour.find(queryObj);
+    // ADVANCED FILTERING
+    let queryStr = JSON.stringify(queryObj);
 
-    // const query =  Tour.find()
-    //   .where('duration')
-    //   .equals(duration)
-    //   .where('difficulty')
-    //   .equals(difficulty);
+    queryStr = queryStr.replace(
+      /\b(gte|gt|lte|lt)\b/g,
+      (str) => `$${str}`
+    );
+
+    // replace gt,gte,lt,lte with $gt, $gte, $lt, $lte
+    // 1) BUILD QUERY
+    const query = Tour.find(JSON.parse(queryStr));
 
     // 2) EXCUTE QUERY
     const tours = await query;
