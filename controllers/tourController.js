@@ -2,34 +2,8 @@
 /* eslint-disable node/no-unsupported-features/es-syntax */
 
 const Tour = require('../model/tourModel');
+const APIFeatures = require('../utils/apiFeatures');
 
-// 1) TOP LEVEL READING
-// const tours = JSON.parse(
-//   fs.readFileSync(
-//     `${__dirname}/../dev-data/data/tours-simple.json`
-//   )
-// );
-
-// 2) TOURS ROUTES HANDLERS
-// exports.checkId = function (req, res, next, id) {
-// if (id >= tours.length)
-//   return res
-//     .status(404)
-//     .json({ status: 'Fail', message: 'Invalid ID' });
-
-// next();
-// };
-
-// exports.checkBody = function (req, res, next) {
-//   if (!req.body.name || !req.body.price) {
-//     return res.status(400).json({
-//       status: 'Fail',
-//       message: 'Missing name or price',
-//     });
-//   }
-
-//   next();
-// };
 exports.aliasTopTours = async function (req, res, next) {
   req.query.limit = '5';
   req.query.sort = '-ratingsAverage,price';
@@ -41,57 +15,14 @@ exports.aliasTopTours = async function (req, res, next) {
 
 exports.getAllTours = async function (req, res) {
   try {
-    //  1) FILTERING the query object to eliminate limit, sort, page and .. requests
-    const queryObj = { ...req.query };
-    const toBeEliminatedQueries = [
-      'sort',
-      'page',
-      'limit',
-      'fields',
-    ];
-    toBeEliminatedQueries.forEach((el) => {
-      delete queryObj[el];
-    });
-
-    // 2) BUILD UP query obj
-    // A) Filtering
-    let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace(
-      /\b(gte)|(lt)|(lte)|(gt)\b/g,
-      (str) => `$${str}`
-    );
-
-    // CREATING QUERY OBJECT
-    let query = Tour.find(JSON.parse(queryStr));
-
-    // B) SORTING
-    if (req.query.sort)
-      query = query.sort(req.query.sort.split(',').join(' '));
-    else query = query.sort('-createdAt');
-
-    // C) LIMITING
-    if (req.query.fields) {
-      const fields = req.query.fields.split(',').join(' ');
-      query = query.select(fields);
-    } else {
-      query = query.select('-__v');
-    }
-
-    // C) PAGINATION
-    const limit = +req.query.limit || 5;
-    const page = +req.query.page || 1;
-    const skip = (page - 1) * limit;
-
-    query = query.skip(skip).limit(limit);
-
-    if (req.query.page) {
-      const numTours = await Tour.countDocuments();
-      if (skip >= numTours)
-        throw new Error('This page does not exist');
-    }
-
     // 2) EXCUTE QUERY
-    const tours = await query; // await will cause teh query object to be excuted
+    const features = new APIFeatures(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .project()
+      .paginate();
+
+    const tours = await features.mongooseQueryObject; // await will cause teh query object to be excuted
 
     // 3) SEND RESPONSE
     res.status(200).json({
