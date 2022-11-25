@@ -32,26 +32,36 @@ const Tour = require('../model/tourModel');
 // };
 exports.getAllTours = async function (req, res) {
   try {
+    //  1) FILTERING the query object to eliminate limit, sort, page and .. requests
     const queryObj = { ...req.query };
-    const excludedFields = ['page', 'sort', 'limit', 'fields'];
-    excludedFields.forEach((el) => {
+    const toBeEliminatedQueries = [
+      'sort',
+      'page',
+      'limit',
+      'fields',
+    ];
+    toBeEliminatedQueries.forEach((el) => {
       delete queryObj[el];
     });
 
-    // ADVANCED FILTERING
+    // 2) BUILD UP query obj
+    // A) Filtering
     let queryStr = JSON.stringify(queryObj);
-
     queryStr = queryStr.replace(
-      /\b(gte|gt|lte|lt)\b/g,
+      /\b(gte)|(lt)|(lte)|(gt)\b/g,
       (str) => `$${str}`
     );
 
-    // replace gt,gte,lt,lte with $gt, $gte, $lt, $lte
-    // 1) BUILD QUERY
-    const query = Tour.find(JSON.parse(queryStr));
+    // CREATING QUERY OBJECT
+    let query = Tour.find(JSON.parse(queryStr));
+
+    // B) SORTING
+    if (req.query.sort)
+      query = query.sort(req.query.sort.split(',').join(' '));
+    else query = query.sort('-createdAt');
 
     // 2) EXCUTE QUERY
-    const tours = await query;
+    const tours = await query; // await will cause teh query object to be excuted
 
     // 3) SEND RESPONSE
     res.status(200).json({
