@@ -60,6 +60,14 @@ exports.getAllTours = async function (req, res) {
       query = query.sort(req.query.sort.split(',').join(' '));
     else query = query.sort('-createdAt');
 
+    // C) LIMITING
+    if (req.query.fields) {
+      const fields = req.query.fields.split(',').join(' ');
+      query = query.select(fields);
+    } else {
+      query = query.select('-__v');
+    }
+
     // 2) EXCUTE QUERY
     const tours = await query; // await will cause teh query object to be excuted
 
