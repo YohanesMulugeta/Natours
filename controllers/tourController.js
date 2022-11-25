@@ -30,6 +30,15 @@ const Tour = require('../model/tourModel');
 
 //   next();
 // };
+exports.aliasTopTours = async function (req, res, next) {
+  req.query.limit = '5';
+  req.query.sort = '-ratingsAverage,price';
+  req.query.fields =
+    'name,ratingsAverage,price,summary,difficulty';
+
+  next();
+};
+
 exports.getAllTours = async function (req, res) {
   try {
     //  1) FILTERING the query object to eliminate limit, sort, page and .. requests
@@ -68,6 +77,19 @@ exports.getAllTours = async function (req, res) {
       query = query.select('-__v');
     }
 
+    // C) PAGINATION
+    const limit = +req.query.limit || 5;
+    const page = +req.query.page || 1;
+    const skip = (page - 1) * limit;
+
+    query = query.skip(skip).limit(limit);
+
+    if (req.query.page) {
+      const numTours = await Tour.countDocuments();
+      if (skip >= numTours)
+        throw new Error('This page does not exist');
+    }
+
     // 2) EXCUTE QUERY
     const tours = await query; // await will cause teh query object to be excuted
 
@@ -80,6 +102,7 @@ exports.getAllTours = async function (req, res) {
   } catch (err) {
     res.status(404).json({
       status: 'fail',
+      message: err,
     });
   }
 };
