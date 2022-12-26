@@ -59,7 +59,7 @@ exports.getTourById = async function (req, res) {
 
 exports.createNewTour = async function (req, res) {
   try {
-    // const newTour = new Tour()
+    // const newTour = new Tour(req.body)
     // newTour.save()
 
     // This creates the tour object and saves it on the MONGODB
