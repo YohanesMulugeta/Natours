@@ -50,7 +50,7 @@ class APIFeatures {
   }
 
   paginate() {
-    const limit = +this.clientQueryString.limit || 5;
+    const limit = +this.clientQueryString.limit || 0;
     const page = +this.clientQueryString.page || 1;
     const skip = (page - 1) * limit;
 
