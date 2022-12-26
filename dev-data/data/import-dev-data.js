@@ -1,12 +1,13 @@
+const dotenv = require('dotenv');
+
+dotenv.config({ path: './config.env' });
+
 const fs = require('fs');
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
 const {
   clearDatabase,
   importDataToDatabase,
 } = require('../../controllers/tourController');
-
-dotenv.config({ path: './config.env' });
 
 const DB = process.env.DATABASE.replace(
   '<PASSWORD>',
@@ -15,9 +16,6 @@ const DB = process.env.DATABASE.replace(
 
 // This is about the server connection to the database therefor
 // we will use this code inside this file
-const tours = JSON.parse(
-  fs.readFileSync(`${__dirname}/tours-simple.json`, 'utf-8')
-);
 (async () => {
   await mongoose.connect(DB, {
     useNewUrlParser: true,
@@ -28,6 +26,10 @@ const tours = JSON.parse(
   console.log('Database connection is successful!');
 
   if (process.argv[2] === '--import') {
+    const tours = JSON.parse(
+      fs.readFileSync(`${__dirname}/tours-simple.json`, 'utf-8')
+    );
+
     importDataToDatabase(tours);
   } else if (process.argv[2] === '--delete') {
     clearDatabase();
