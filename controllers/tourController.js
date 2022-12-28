@@ -140,14 +140,61 @@ exports.tourStats = async function (req, res) {
   }
 };
 
+exports.getMonthlyPlan = async function (req, res) {
+  try {
+    const year = +req.params.year; // eg: 2021
+
+    const plan = await Tour.aggregate([
+      { $unwind: '$startDates' },
+      {
+        $match: {
+          startDates: {
+            $gte: new Date(`${year}-01-01`),
+            $lte: new Date(`${year}-12-31`),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { $month: '$startDates' },
+          numOfTourStarts: { $sum: 1 },
+          tours: { $push: '$name' },
+        },
+      },
+      {
+        $addFields: {
+          month: '$_id',
+        },
+      },
+      { $project: { _id: 0 } },
+      { $sort: { numOfTourStarts: -1 } },
+      { $limit: 12 },
+    ]);
+
+    res.status(200).json({
+      status: 'success',
+      result: plan.length,
+      data: {
+        plan,
+      },
+    });
+  } catch (err) {
+    res
+      .status(404)
+      .json({ status: 'Fail', message: err.message });
+  }
+};
+
 exports.importDataToDatabase = async function (tours) {
   try {
     await Tour.create(tours);
 
+    // eslint-disable-next-line no-console
     console.log(
       'Tours are exported to mongodb database successfully'
     );
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.log(err);
   }
   process.exit();
@@ -156,9 +203,10 @@ exports.importDataToDatabase = async function (tours) {
 exports.clearDatabase = async function () {
   try {
     await Tour.deleteMany();
-
+    // eslint-disable-next-line no-console
     console.log('DataBase is cleared');
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.log(err);
   }
   process.exit();
