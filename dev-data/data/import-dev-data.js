@@ -23,6 +23,7 @@ const DB = process.env.DATABASE.replace(
     useFindAndModify: false,
     useUnifiedTopology: true,
   });
+  // eslint-disable-next-line no-console
   console.log('Database connection is successful!');
 
   if (process.argv[2] === '--import') {
