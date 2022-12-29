@@ -28,7 +28,7 @@ const DB = process.env.DATABASE.replace(
 
   if (process.argv[2] === '--import') {
     const tours = JSON.parse(
-      fs.readFileSync(`${__dirname}/tours-simple.json`, 'utf-8')
+      fs.readFileSync(`${__dirname}/tours.json`, 'utf-8')
     );
 
     importDataToDatabase(tours);
