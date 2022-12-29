@@ -87,7 +87,7 @@ exports.updateTour = async function (req, res) {
       req.body,
       {
         new: true,
-        runValidators: false,
+        runValidators: true,
       }
     ); // this sets the returned value will be the new one
     res.status(200).json({
@@ -95,7 +95,9 @@ exports.updateTour = async function (req, res) {
       data: { tour: updatedTour },
     });
   } catch (err) {
-    res.status(404).json({ status: 'Fail' });
+    res
+      .status(404)
+      .json({ status: 'Fail', message: err.message });
   }
 };
 
