@@ -51,7 +51,16 @@ const tourSchema = new mongoose.Schema(
       type: Number,
       required: [true, 'A tour must have a price'],
     },
-    priceDiscount: Number,
+    priceDiscount: {
+      type: Number,
+      validate: {
+        validator: function (val) {
+          return val < this.price;
+        },
+        message:
+          'The discount price ({VALUE}) should be below the regular price',
+      },
+    },
     summary: {
       type: String,
       required: [true, 'A tourm must have a summary'],
@@ -95,21 +104,21 @@ tourSchema.pre('save', function (next) {
 // });
 
 // QUERY MIDDLEWARE
-// tourSchema.pre(/^find/, function (next) {
-//   // ^ in regular expression means starts with
-//   this.find({ secretTour: { $ne: true } });
-//   this.start = Date.now();
+tourSchema.pre(/^find/, function (next) {
+  // ^ in regular expression means starts with
+  this.find({ secretTour: { $ne: true } });
+  this.start = Date.now();
 
-//   next();
-// });
-
-tourSchema.post(/^find/, function (docs, next) {
-  //gets access to the documents get returns
-  console.log(
-    `Query took ${(Date.now() - this.start) / 1000} seconds`
-  );
   next();
 });
+
+// tourSchema.post(/^find/, function (docs, next) {
+//   //gets access to the documents get returns
+//   console.log(
+//     `Query took ${(Date.now() - this.start) / 1000} seconds`
+//   );
+//   next();
+// });
 
 // AGGREGATION MIDDLEWARE
 tourSchema.pre('aggregate', function (next) {
