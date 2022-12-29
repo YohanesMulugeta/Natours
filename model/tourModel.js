@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+const validator = require('validator');
 
 // Modle is like a blue print to create documents
 const tourSchema = new mongoose.Schema(
@@ -16,6 +17,10 @@ const tourSchema = new mongoose.Schema(
       minlength: [
         10,
         'A tour name must have atleast 10 characters',
+      ],
+      validate: [
+        validator.isAlpha,
+        'Tour name ({VALUE}) should not contain anything other than alphabetic characters',
       ],
     },
     slug: String,
