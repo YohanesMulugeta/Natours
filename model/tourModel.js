@@ -9,6 +9,14 @@ const tourSchema = new mongoose.Schema(
       required: [true, 'A tour must have a price'],
       unique: [true, 'Duplicate tour name'],
       trim: true,
+      maxlength: [
+        40,
+        'A tour name must have less or equal 40 characters',
+      ],
+      minlength: [
+        10,
+        'A tour name must have atleast 10 characters',
+      ],
     },
     slug: String,
     duration: {
@@ -52,6 +60,10 @@ const tourSchema = new mongoose.Schema(
       select: false,
     },
     startDates: [Date],
+    secretTour: {
+      type: Boolean,
+      default: false,
+    },
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
@@ -72,4 +84,28 @@ tourSchema.pre('save', function (next) {
 //   next();
 // });
 
+// QUERY MIDDLEWARE
+tourSchema.pre(/^find/, function (next) {
+  // ^ in regular expression means starts with
+  this.find({ secretTour: { $ne: true } });
+  this.start = Date.now();
+
+  next();
+});
+
+tourSchema.post(/^find/, function (docs, next) {
+  //gets access to the documents get returns
+  console.log(
+    `Query took ${(Date.now() - this.start) / 1000} seconds`
+  );
+  next();
+});
+
+// AGGREGATION MIDDLEWARE
+tourSchema.pre('aggregate', function (next) {
+  this.pipeline().unshift({
+    $match: { secretTour: { $ne: true } },
+  });
+  next();
+});
 module.exports = mongoose.model('Tour', tourSchema);
