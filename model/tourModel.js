@@ -31,12 +31,22 @@ const tourSchema = new mongoose.Schema(
       type: String,
       required: [true, 'A tour must have a difficulty'],
       trim: true,
+      enum: {
+        values: ['easy', 'difficult', 'medium'],
+        message:
+          'Difficultly is either easy, difficult, or medium',
+      },
     },
     ratingsQuantity: {
       type: Number,
       default: 0,
     },
-    ratingsAverage: { type: Number, default: 4.5 },
+    ratingsAverage: {
+      type: Number,
+      default: 4.5,
+      min: [1, 'Rating must be above 1.0'],
+      max: [5, 'Rating must be less than or equal to 5.0'],
+    },
     price: {
       type: Number,
       required: [true, 'A tour must have a price'],
@@ -85,13 +95,13 @@ tourSchema.pre('save', function (next) {
 // });
 
 // QUERY MIDDLEWARE
-tourSchema.pre(/^find/, function (next) {
-  // ^ in regular expression means starts with
-  this.find({ secretTour: { $ne: true } });
-  this.start = Date.now();
+// tourSchema.pre(/^find/, function (next) {
+//   // ^ in regular expression means starts with
+//   this.find({ secretTour: { $ne: true } });
+//   this.start = Date.now();
 
-  next();
-});
+//   next();
+// });
 
 tourSchema.post(/^find/, function (docs, next) {
   //gets access to the documents get returns
