@@ -3,6 +3,7 @@
 
 const Tour = require('../model/tourModel');
 const APIFeatures = require('../utils/apiFeatures');
+const catchAsync = require('../utils/catchAsync');
 
 exports.aliasTopTours = async function (req, res, next) {
   req.query.limit = '5';
@@ -13,71 +14,46 @@ exports.aliasTopTours = async function (req, res, next) {
   next();
 };
 
-exports.getAllTours = async function (req, res) {
-  try {
-    // 2) EXCUTE QUERY
-    const features = new APIFeatures(Tour.find(), req.query)
-      .filter()
-      .sort()
-      .project()
-      .paginate();
+exports.getAllTours = catchAsync(async (req, res, next) => {
+  // 2) EXCUTE QUERY
+  const features = new APIFeatures(Tour.find(), req.query)
+    .filter()
+    .sort()
+    .project()
+    .paginate();
 
-    const tours = await features.mongooseQueryObject; // await will cause teh query object to be excuted
+  const tours = await features.mongooseQueryObject; // await will cause teh query object to be excuted
 
-    // 3) SEND RESPONSE
-    res.status(200).json({
-      status: 'success',
-      results: tours.length,
-      data: { tours },
-    });
-  } catch (err) {
-    res.status(404).json({
-      status: 'fail',
-      message: err,
-    });
-  }
-};
+  // 3) SEND RESPONSE
+  res.status(200).json({
+    status: 'success',
+    results: tours.length,
+    data: { tours },
+  });
+});
 
-exports.getTourById = async function (req, res) {
-  try {
-    const { id } = req.params;
+exports.getTourById = catchAsync(async (req, res) => {
+  const { id } = req.params;
 
-    const tour = await Tour.findById(id);
-    // Tour.findOne({ _id: id })
+  const tour = await Tour.findById(id);
+  // Tour.findOne({ _id: id })
 
-    res.status(200).json({
-      status: 'success',
-      data: { tour },
-    });
-  } catch (err) {
-    res.status(404).json({
-      status: 'Fail',
-      message: err,
-    });
-  }
-};
+  res.status(200).json({
+    status: 'success',
+    data: { tour },
+  });
+});
 
-exports.createNewTour = async function (req, res) {
-  try {
-    // const newTour = new Tour(req.body)
-    // newTour.save()
+exports.createNewTour = catchAsync(async (req, res) => {
+  const newTour = await Tour.create(req.body);
 
-    // This creates the tour object and saves it on the MONGODB
-    const newTour = await Tour.create(req.body);
-
-    res.status(200).json({
-      status: 'succes',
-      data: {
-        tour: newTour,
-      },
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: 'Fail',
-      message: err,
-    });
-  }
-};
+  res.status(200).json({
+    status: 'succes',
+    data: {
+      tour: newTour,
+    },
+  });
+});
 
 exports.updateTour = async function (req, res) {
   try {
