@@ -1,3 +1,5 @@
+/* eslint-disable prefer-arrow-callback */
+const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const validator = require('validator');
 
@@ -33,6 +35,15 @@ const userSchema = new mongoose.Schema({
       message: 'ConfirmPassword has to be the same as the password.',
     },
   },
+});
+
+userSchema.pre('save', async function (next) {
+  // 1) Encrypt password
+  this.password = await bcrypt.hash(this.password, 12);
+
+  // 2) remove the password confirm field
+  this.passwordConfirm = undefined;
+  next();
 });
 
 const User = mongoose.model('User', userSchema);
