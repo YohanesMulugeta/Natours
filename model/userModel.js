@@ -35,6 +35,15 @@ const userSchema = new mongoose.Schema({
       message: 'ConfirmPassword has to be the same as the password.',
     },
   },
+  passwordChangedAt: String,
+});
+
+userSchema.pre('save', async function (next) {
+  if (!this.isModified(this.password)) return next();
+
+  this.passwordChangedAt = Date.now();
+
+  next();
 });
 
 userSchema.pre('save', async function (next) {
@@ -45,6 +54,12 @@ userSchema.pre('save', async function (next) {
   this.passwordConfirm = undefined;
   next();
 });
+
+userSchema.methods.isPasswordChangedAfter = function (tokenIssueDate) {
+  if (!this.passwordChangedAt) return false;
+
+  return tokenIssueDate > +this.passwordChangedAt;
+};
 
 userSchema.methods.isCorrect = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);

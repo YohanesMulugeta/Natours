@@ -21,6 +21,14 @@ function handleValidationError(err) {
   return new AppError(message, 400);
 }
 
+function handleJasonWebTokenError() {
+  return new AppError('Invalid token. Please login and try again.', 401);
+}
+
+function handleExpiredToken() {
+  return new AppError('You are no longer loged in. Please login again', 401);
+}
+
 function sendErrorDev(err, res) {
   res.status(err.statusCode).json({
     status: err.status,
@@ -62,9 +70,9 @@ module.exports = function (err, req, res, next) {
   // console.log(err.name);
   if (err.code === 11000) error = handleDuplicateFields(err);
   if (err.name === 'CastError') error = handleCastErrorDB(error);
-  if (err.name === 'ValidationError')
-    error = handleValidationError(err);
-
+  if (err.name === 'ValidationError') error = handleValidationError(err);
+  if (err.name === 'JsonWebTokenError') error = handleJasonWebTokenError();
+  if (err.name === 'TokenExpiredError') error = handleExpiredToken();
   if (process.env.NODE_ENV === 'production') {
     sendErrorPro(error, res);
   }
