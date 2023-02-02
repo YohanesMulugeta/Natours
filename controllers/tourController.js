@@ -9,8 +9,7 @@ const catchAsync = require('../utils/catchAsync');
 exports.aliasTopTours = function (req, res, next) {
   req.query.limit = '5';
   req.query.sort = '-ratingsAverage,price';
-  req.query.fields =
-    'name,ratingsAverage,price,summary,difficulty';
+  req.query.fields = 'name,ratingsAverage,price,summary,difficulty';
 
   next();
 };
@@ -157,9 +156,7 @@ exports.importDataToDatabase = async function (tours) {
     await Tour.create(tours);
 
     // eslint-disable-next-line no-console
-    console.log(
-      'Tours are exported to mongodb database successfully'
-    );
+    console.log('Tours are exported to mongodb database successfully');
   } catch (err) {
     // eslint-disable-next-line no-console
     console.log(err);

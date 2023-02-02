@@ -36,17 +36,24 @@ const userSchema = new mongoose.Schema({
     },
   },
   passwordChangedAt: String,
+  role: {
+    type: String,
+    enum: ['user', 'admin', 'guide', 'lead-guid'],
+    default: 'user',
+  },
 });
 
 userSchema.pre('save', async function (next) {
-  if (!this.isModified(this.password)) return next();
+  if (!this.isModified('password') || this.isnew) return next();
 
-  this.passwordChangedAt = Date.now();
+  this.passwordChangedAt = Date.now() - 1000;
 
   next();
 });
 
 userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+
   // 1) Encrypt password
   this.password = await bcrypt.hash(this.password, 12);
 

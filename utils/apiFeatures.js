@@ -6,12 +6,7 @@ class APIFeatures {
 
   filter() {
     const queryObj = { ...this.clientQueryString };
-    const toBeEliminatedQueries = [
-      'sort',
-      'page',
-      'limit',
-      'fields',
-    ];
+    const toBeEliminatedQueries = ['sort', 'page', 'limit', 'fields'];
     toBeEliminatedQueries.forEach((el) => {
       delete queryObj[el];
     });
@@ -31,8 +26,7 @@ class APIFeatures {
 
   sort() {
     const sortStr =
-      this.clientQueryString.sort?.split(',').join(' ') ||
-      '-createdAt';
+      this.clientQueryString.sort?.split(',').join(' ') || '-createdAt';
 
     this.mongooseQueryObject.sort(sortStr);
 
@@ -41,8 +35,7 @@ class APIFeatures {
 
   project() {
     const fields =
-      this.clientQueryString.fields?.split(',').join(' ') ||
-      '-__v';
+      this.clientQueryString.fields?.split(',').join(' ') || '-__v';
 
     this.mongooseQueryObject.select(fields);
 
@@ -54,7 +47,7 @@ class APIFeatures {
     const page = +this.clientQueryString.page || 1;
     const skip = (page - 1) * limit;
 
-    this.mongooseQueryObject.skip(skip).limit(limit);
+    // this.mongooseQueryObject.skip(skip).limit(limit);
 
     return this;
   }

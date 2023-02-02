@@ -73,9 +73,8 @@ exports.protect = catchAsync(async (req, res, next) => {
     process.env.JWT_SECRET
   );
 
-  const user = await User.findById(id);
-
   // 1) check if the user still exists
+  const user = await User.findById(id);
   if (!user)
     return next(
       new AppError('NO user exists with this token. Please login again.', 401)
@@ -85,7 +84,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   if (user.isPasswordChangedAfter(iat * 1000))
     return next(
       new AppError(
-        'Password has changed since you last login. Please login and try again.',
+        'Password has changed recently. Please login and try again.',
         401
       )
     );
@@ -95,3 +94,14 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   next();
 });
+
+exports.strict = function (...roles) {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role))
+      return next(
+        new AppError('You do not have permission to perform this action.', 403)
+      );
+
+    next();
+  };
+};

@@ -19,13 +19,25 @@ router.route('/tour-stats').get(tourController.tourStats);
 
 router
   .route('/')
-  .get(authController.protect, tourController.getAllTours)
-  .post(tourController.createNewTour);
+  .get(
+    authController.protect,
+    authController.strict,
+    tourController.getAllTours
+  )
+  .post(
+    authController.protect,
+    authController.strict,
+    tourController.createNewTour
+  );
 
 router
   .route('/:id')
   .get(tourController.getTourById)
   .patch(tourController.updateTour)
-  .delete(tourController.deleteTour);
+  .delete(
+    authController.protect,
+    authController.strict('admin', 'lead-guid'),
+    tourController.deleteTour
+  );
 
 module.exports = router;
