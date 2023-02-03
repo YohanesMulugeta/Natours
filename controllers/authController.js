@@ -105,3 +105,27 @@ exports.strict = function (...roles) {
     next();
   };
 };
+
+exports.forgotPassword = catchAsync(async function (req, res, next) {
+  // 1) RECIEVE EMAIL AND CHECK IF THERE IS EMAIL
+  const { email } = req.body;
+
+  if (!email)
+    return next(
+      new AppError('Please provide email address to update your password.', 400)
+    );
+
+  // 2) FIND THE USER WITH THE PROVIDED EMAIL ADDRESS
+  const user = await User.findOne({ email });
+
+  if (!user) return next(new AppError('No user with this email address.', 400));
+
+  const resetToken = await user.createPasswordResetToken();
+
+  await user.save({ validateBeforeSave: false });
+
+  res.status(200).json({
+    status: 'success',
+    message: 'password reset link has been sent to your email address',
+  });
+});
