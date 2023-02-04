@@ -125,7 +125,10 @@ exports.forgotPassword = catchAsync(async function (req, res, next) {
 
   await user.save({ validateBeforeSave: false });
 
-  await sendMail('yohanesMulugeta21@gmail.com', 'password reset', resetToken);
+  const passwordResetLink = `Forgot your password? Submit a patch request with your new password and password confirm to:${req.baseUrl}/resetPassword/${resetToken} \nAnd if you dont forget your password please ignore this message`;
+  const subject = `Your password reset link. (Valid for 10 minutes)`;
+
+  await sendMail('yohanesMulugeta21@gmail.com', subject, passwordResetLink);
 
   res.status(200).json({
     status: 'success',

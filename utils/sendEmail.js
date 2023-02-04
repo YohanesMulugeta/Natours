@@ -17,7 +17,7 @@ async function sendMail(to, subject, text) {
 
   // 2) configuret mailer options
   const messageOpt = {
-    from: 'I yimechen <jojo@lala.com>',
+    from: 'Best regards <yohanesmulugeta21@gmail.com>',
     to,
     subject,
     text,
