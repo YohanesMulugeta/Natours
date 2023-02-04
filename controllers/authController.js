@@ -4,6 +4,7 @@ const { promisify } = require('util');
 const AppError = require('../utils/appError');
 const User = require('../model/userModel');
 const catchAsync = require('../utils/catchAsync');
+const sendMail = require('../utils/sendEmail');
 
 const sign = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -123,6 +124,8 @@ exports.forgotPassword = catchAsync(async function (req, res, next) {
   const resetToken = await user.createPasswordResetToken();
 
   await user.save({ validateBeforeSave: false });
+
+  await sendMail('yohanesMulugeta21@gmail.com', 'password reset', resetToken);
 
   res.status(200).json({
     status: 'success',
