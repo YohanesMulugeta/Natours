@@ -46,7 +46,7 @@ exports.login = catchAsync(async (req, res, next) => {
     );
 
   // 2) check if a user exists with the email provided
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email }).select('+password');
 
   // 3) verify the password
   const isCorrect = await user?.isCorrect(password);
@@ -165,6 +165,7 @@ exports.resetPassword = catchAsync(async function (req, res, next) {
 
 exports.updatePassword = catchAsync(async function (req, res, next) {
   const { password, newPassword, passwordConfirm } = req.body;
+  const user = await User.findById(req.user._id).select('+password');
 
   // 1) check if both the fields are here
   if (!password || !passwordConfirm || !newPassword)
@@ -176,14 +177,14 @@ exports.updatePassword = catchAsync(async function (req, res, next) {
     );
 
   // 2) check if the user entered a correct password
-  if (!(await req.user.isCorrect(password)))
+  if (!(await user.isCorrect(password)))
     return next(new AppError('Incorrect password.', 401));
 
   // 2) set the password to the new one
-  req.user.password = newPassword;
-  req.user.passwordConfirm = passwordConfirm;
+  user.password = newPassword;
+  user.passwordConfirm = passwordConfirm;
 
-  await req.user.save();
+  await user.save();
 
-  signAndSendToken(req.user, 200, res);
+  signAndSendToken(user, 200, res);
 });

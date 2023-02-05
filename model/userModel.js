@@ -25,6 +25,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'A user must have a password'],
     minLength: [6, 'Password must be a minimum of 6 char lenght.'],
+    select: false,
   },
   passwordConfirm: {
     type: String,
@@ -88,6 +89,7 @@ userSchema.methods.isPasswordChangedAfter = function (tokenIssueDate) {
 };
 
 userSchema.methods.isCorrect = async function (candidatePassword) {
+  console.log(this.password);
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
