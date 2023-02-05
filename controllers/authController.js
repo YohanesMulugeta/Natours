@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
+const crypto = require('crypto');
 
 const AppError = require('../utils/appError');
 const User = require('../model/userModel');
@@ -133,5 +134,38 @@ exports.forgotPassword = catchAsync(async function (req, res, next) {
   res.status(200).json({
     status: 'success',
     message: 'password reset link has been sent to your email address',
+  });
+});
+
+exports.resetPassword = catchAsync(async function (req, res, next) {
+  // 1) recieve the reset token, newPassword, confirmPassword
+  const { resetToken } = req.params;
+  const { password, passwordConfirm } = req.body;
+
+  // 2) encrypt and find the user with this resetToken
+  const encryptedToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  const user = await User.findOne({
+    passwordResetToken: encryptedToken,
+    passwordResetExpires: { $gte: Date.now() },
+  });
+
+  if (!user)
+    return next(new AppError('Invalid reset link or expired link', 400));
+
+  // 3) resetPassword
+  user.password = password;
+  user.passwordConfirm = passwordConfirm;
+
+  await user.save();
+
+  // 2)send responce
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Congraulation you are successfully changed your password.',
   });
 });

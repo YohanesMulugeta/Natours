@@ -62,6 +62,9 @@ userSchema.pre('save', async function (next) {
 
   // 2) remove the password confirm field
   this.passwordConfirm = undefined;
+  this.passwordResetExpires = undefined;
+  this.passwordResetToken = undefined;
+
   next();
 });
 
@@ -73,7 +76,7 @@ userSchema.methods.createPasswordResetToken = async function () {
     .update(resetToken)
     .digest('hex');
 
-  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+  this.passwordResetExpires = Date.now() + 30 * 1000;
 
   return resetToken;
 };
