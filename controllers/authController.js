@@ -154,7 +154,7 @@ exports.resetPassword = catchAsync(async function (req, res, next) {
   });
 
   if (!user)
-    return next(new AppError('Invalid reset link or expired link', 400));
+    return next(new AppError('Reset link is invalid or has expired.', 400));
 
   // 3) resetPassword
   user.password = password;
@@ -162,10 +162,12 @@ exports.resetPassword = catchAsync(async function (req, res, next) {
 
   await user.save();
 
-  // 2)send responce
+  // 4) Login the user in
+  const token = sign(user._id);
 
   res.status(200).json({
     status: 'success',
     message: 'Congraulation you are successfully changed your password.',
+    token,
   });
 });
