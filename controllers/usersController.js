@@ -1,8 +1,17 @@
+/* eslint-disable node/no-unsupported-features/es-syntax */
 /* eslint-disable prefer-arrow-callback */
 // 1) USERS ROUTES HANDLERS
 const User = require('../model/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+
+const filterObj = (obj, ...fields) => {
+  fields.forEach((field) => {
+    delete obj[field];
+  });
+
+  return { ...obj };
+};
 
 exports.getAllUsers = catchAsync(async (req, res) => {
   const users = await User.find();
@@ -23,12 +32,18 @@ exports.updateMe = catchAsync(async function (req, res, next) {
       )
     );
 
-  // 2) prevent a user updating a role
-  if (data.role)
-    return next(new AppError('You are not allowed to update role field', 400));
+  // 2) filter the data obj so that a user will not update unwanted fields
+
+  const filteredData = filterObj(
+    data,
+    'role',
+    'passwordResetExpires',
+    'passwordResetToken',
+    'passwordChangedAt'
+  );
 
   // 3) update user and also run validators
-  const user = await User.findByIdAndUpdate(req.user._id, data, {
+  const user = await User.findByIdAndUpdate(req.user._id, filteredData, {
     new: true,
     runValidators: true,
   });
