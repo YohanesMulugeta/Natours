@@ -21,7 +21,7 @@ router
   .route('/')
   .get(
     authController.protect,
-    authController.strict,
+
     tourController.getAllTours
   )
   .post(

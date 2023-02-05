@@ -49,7 +49,7 @@ const userSchema = new mongoose.Schema({
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password') || this.isnew) return next();
 
-  this.passwordChangedAt = Date.now() - 1000;
+  this.passwordChangedAt = Date.now() - 3000;
 
   next();
 });
@@ -76,7 +76,7 @@ userSchema.methods.createPasswordResetToken = async function () {
     .update(resetToken)
     .digest('hex');
 
-  this.passwordResetExpires = Date.now() + 30 * 1000;
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
   return resetToken;
 };
@@ -84,7 +84,7 @@ userSchema.methods.createPasswordResetToken = async function () {
 userSchema.methods.isPasswordChangedAfter = function (tokenIssueDate) {
   if (!this.passwordChangedAt) return false;
 
-  return tokenIssueDate > +this.passwordChangedAt;
+  return tokenIssueDate < +this.passwordChangedAt;
 };
 
 userSchema.methods.isCorrect = async function (candidatePassword) {
