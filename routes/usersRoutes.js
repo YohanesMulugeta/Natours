@@ -14,6 +14,7 @@ router.patch(
   authController.protect,
   authController.updatePassword
 );
+router.patch('/updateMe', authController.protect, usersController.updateMe);
 
 // 1) HANDLING ROUTES
 router
