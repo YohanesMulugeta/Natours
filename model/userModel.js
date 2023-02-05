@@ -45,6 +45,11 @@ const userSchema = new mongoose.Schema({
   },
   passwordResetToken: String,
   passwordResetExpires: String,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
 });
 
 userSchema.pre('save', async function (next) {
@@ -65,6 +70,13 @@ userSchema.pre('save', async function (next) {
   this.passwordConfirm = undefined;
   this.passwordResetExpires = undefined;
   this.passwordResetToken = undefined;
+
+  next();
+});
+
+userSchema.pre(/^find/, function (next) {
+  // this points to query object
+  this.find({ active: { $ne: false } });
 
   next();
 });
