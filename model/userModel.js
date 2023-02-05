@@ -84,7 +84,7 @@ userSchema.methods.createPasswordResetToken = async function () {
 userSchema.methods.isPasswordChangedAfter = function (tokenIssueDate) {
   if (!this.passwordChangedAt) return false;
 
-  return tokenIssueDate < +this.passwordChangedAt;
+  return +tokenIssueDate < +this.passwordChangedAt;
 };
 
 userSchema.methods.isCorrect = async function (candidatePassword) {

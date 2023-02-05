@@ -12,6 +12,15 @@ const sign = (id) =>
     expiresIn: process.env.JWT_EXP,
   });
 
+const signAndSendToken = (user, statusCode, res) => {
+  const token = sign(user._id);
+
+  res.status(statusCode).json({
+    status: 'success',
+    token,
+  });
+};
+
 exports.signUp = catchAsync(async (req, res, next) => {
   // 1) recieve onlly the fields we want to store to our user document
   const { name, email, password, passwordConfirm } = req.body;
@@ -24,14 +33,7 @@ exports.signUp = catchAsync(async (req, res, next) => {
     passwordConfirm,
   });
 
-  // 3) signIn user
-  const token = sign(newUser._id);
-
-  // 3) send response with the token
-  res.status(201).json({
-    message: 'success',
-    token,
-  });
+  signAndSendToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -52,11 +54,7 @@ exports.login = catchAsync(async (req, res, next) => {
   if (!user || !isCorrect)
     return next(new AppError('Invalid eamil or password.', 403));
 
-  // 4) login
-  const token = sign(user.id);
-
-  // 5) send responce
-  res.status(200).json({ status: 'success', token });
+  signAndSendToken(user, 200, res);
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -162,12 +160,30 @@ exports.resetPassword = catchAsync(async function (req, res, next) {
 
   await user.save();
 
-  // 4) Login the user in
-  const token = sign(user._id);
+  signAndSendToken(user, 200, res);
+});
 
-  res.status(200).json({
-    status: 'success',
-    message: 'Congraulation you are successfully changed your password.',
-    token,
-  });
+exports.updatePassword = catchAsync(async function (req, res, next) {
+  const { password, newPassword, passwordConfirm } = req.body;
+
+  // 1) check if both the fields are here
+  if (!password || !passwordConfirm || !newPassword)
+    return next(
+      new AppError(
+        'Password, newPassword, and passwordConfirm are required.',
+        401
+      )
+    );
+
+  // 2) check if the user entered a correct password
+  if (!(await req.user.isCorrect(password)))
+    return next(new AppError('Incorrect password.', 401));
+
+  // 2) set the password to the new one
+  req.user.password = newPassword;
+  req.user.passwordConfirm = passwordConfirm;
+
+  await req.user.save();
+
+  signAndSendToken(req.user, 200, res);
 });
