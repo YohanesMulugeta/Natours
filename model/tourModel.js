@@ -10,14 +10,8 @@ const tourSchema = new mongoose.Schema(
       required: [true, 'A tour must have a price'],
       unique: [true, 'Duplicate tour name'],
       trim: true,
-      maxlength: [
-        40,
-        'A tour name must have less or equal 40 characters',
-      ],
-      minlength: [
-        10,
-        'A tour name must have atleast 10 characters',
-      ],
+      maxlength: [40, 'A tour name must have less or equal 40 characters'],
+      minlength: [10, 'A tour name must have atleast 10 characters'],
       // validate: [
       //   validator.isAlpha,
       //   'Tour name ({VALUE}) should not contain anything other than alphabetic characters',
@@ -38,8 +32,7 @@ const tourSchema = new mongoose.Schema(
       trim: true,
       enum: {
         values: ['easy', 'difficult', 'medium'],
-        message:
-          'Difficultly is either easy, difficult, or medium',
+        message: 'Difficultly is either easy, difficult, or medium',
       },
     },
     ratingsQuantity: {
@@ -119,9 +112,7 @@ tourSchema.pre(/^find/, function (next) {
 
 tourSchema.post(/^find/, function (docs, next) {
   //gets access to the documents get returns
-  console.log(
-    `Query took ${(Date.now() - this.start) / 1000} seconds`
-  );
+  console.log(`Query took ${(Date.now() - this.start) / 1000} seconds`);
   next();
 });
 

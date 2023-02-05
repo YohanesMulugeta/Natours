@@ -21,6 +21,8 @@ const signAndSendToken = (user, statusCode, res) => {
   });
 };
 
+// -------------------SIGNUP USER
+
 exports.signUp = catchAsync(async (req, res, next) => {
   // 1) recieve onlly the fields we want to store to our user document
   const { name, email, password, passwordConfirm } = req.body;
@@ -35,6 +37,8 @@ exports.signUp = catchAsync(async (req, res, next) => {
 
   signAndSendToken(newUser, 201, res);
 });
+
+// ----------------LOGIN USER
 
 exports.login = catchAsync(async (req, res, next) => {
   const { password, email } = req.body;
@@ -56,6 +60,8 @@ exports.login = catchAsync(async (req, res, next) => {
 
   signAndSendToken(user, 200, res);
 });
+
+// -------------------PROTECT ROUTE
 
 exports.protect = catchAsync(async (req, res, next) => {
   // 1) Check if the header starts with bearer
@@ -95,6 +101,8 @@ exports.protect = catchAsync(async (req, res, next) => {
   next();
 });
 
+// ------------------STRICT USER
+
 exports.strict = function (...roles) {
   return (req, res, next) => {
     if (!roles.includes(req.user.role))
@@ -105,6 +113,8 @@ exports.strict = function (...roles) {
     next();
   };
 };
+
+// ----------------------FORGOT PASSWORD
 
 exports.forgotPassword = catchAsync(async function (req, res, next) {
   // 1) RECIEVE EMAIL AND CHECK IF THERE IS EMAIL
@@ -135,6 +145,8 @@ exports.forgotPassword = catchAsync(async function (req, res, next) {
   });
 });
 
+// --------------------------RESET PASSWORD
+
 exports.resetPassword = catchAsync(async function (req, res, next) {
   // 1) recieve the reset token, newPassword, confirmPassword
   const { resetToken } = req.params;
@@ -163,6 +175,7 @@ exports.resetPassword = catchAsync(async function (req, res, next) {
   signAndSendToken(user, 200, res);
 });
 
+// -----------------UPDATE PASSWORD
 exports.updatePassword = catchAsync(async function (req, res, next) {
   const { password, newPassword, passwordConfirm } = req.body;
   const user = await User.findById(req.user._id).select('+password');
