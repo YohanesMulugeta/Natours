@@ -15,7 +15,7 @@ const filterObj = (obj, ...fields) => {
 
 exports.getAllUsers = catchAsync(async (req, res) => {
   const users = await User.find();
-  res.status(500).json({
+  res.status(200).json({
     status: 'Error',
     data: { users },
   });
