@@ -1,6 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 
 const tourRouter = require('./routes/tourRoutes');
 const usersRouter = require('./routes/usersRoutes');
@@ -13,7 +14,10 @@ const app = express();
 // 1) MIDDLEWARE DECLARATION
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
-// Rate limit is used as a global middleware
+// set SECURITY HTTP headers
+app.use(helmet());
+
+// Limit REQUESTS from the same IIP
 const limiter = rateLimit({
   max: 30,
   windowMs: 60 * 60 * 1000,
@@ -22,17 +26,20 @@ const limiter = rateLimit({
 
 app.use('/api', limiter);
 
-// applying MIDDLEWARES for puting the data send from the client to be inside the req.body
-app.use(express.json());
+// Body parser
+app.use(express.json({ limit: '10kb' }));
+
+// Serving static files
 app.use(express.static(`${__dirname}/public`));
 
+// TEST middleware
 app.use((req, res, next) => {
   req.reqTime = new Date().toISOString();
 
   next();
 });
 
-// 3) using the imported routers as MIDDLEWARE
+// rOUTERS
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', usersRouter);
 
