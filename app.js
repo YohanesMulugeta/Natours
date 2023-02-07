@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
 
 const tourRouter = require('./routes/tourRoutes');
 const usersRouter = require('./routes/usersRoutes');
@@ -10,7 +11,16 @@ const globalErrorHandler = require('./controllers/errorController');
 const app = express();
 
 // 1) MIDDLEWARE DECLARATION
-app.use(morgan('dev'));
+if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
+
+// Rate limit is used as a global middleware
+const limiter = rateLimit({
+  max: 30,
+  windowMs: 60 * 60 * 1000,
+  message: 'Too many request from this IP, please try again in an hour!',
+});
+
+app.use('/api', limiter);
 
 // applying MIDDLEWARES for puting the data send from the client to be inside the req.body
 app.use(express.json());
@@ -27,10 +37,7 @@ app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', usersRouter);
 
 app.all('*', (req, res, next) => {
-  const err = new AppError(
-    `Can't find ${req.originalUrl} on this server`,
-    404
-  );
+  const err = new AppError(`Can't find ${req.originalUrl} on this server`, 404);
 
   next(err);
 });
