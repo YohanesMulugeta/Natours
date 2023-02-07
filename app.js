@@ -2,6 +2,8 @@ const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
 
 const tourRouter = require('./routes/tourRoutes');
 const usersRouter = require('./routes/usersRoutes');
@@ -28,6 +30,12 @@ app.use('/api', limiter);
 
 // Body parser
 app.use(express.json({ limit: '10kb' }));
+
+// DATA SANITIZATION against NOSQL query injections
+app.use(mongoSanitize());
+
+// DATA SANITIZATION against XSS
+app.use(xss());
 
 // Serving static files
 app.use(express.static(`${__dirname}/public`));
