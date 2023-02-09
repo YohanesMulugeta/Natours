@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const slugify = require('slugify');
 // const validator = require('validator');
 
+const User = require('./userModel');
+
 // Modle is like a blue print to create documents
 const tourSchema = new mongoose.Schema(
   {
@@ -105,6 +107,7 @@ const tourSchema = new mongoose.Schema(
         day: Number,
       },
     ],
+    guides: Array,
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
@@ -117,13 +120,19 @@ tourSchema.virtual('durationWeeks').get(function () {
 // it doesnt run at insertmany command
 tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
+
   next();
 });
 
-// tourSchema.post('save', function (doc, next) {
-//   console.log(doc);
-//   next();
-// });
+tourSchema.pre('save', async function (next) {
+  const guides = await Promise.all(this.guides.map((id) => User.findById(id)));
+
+  this.guides = guides.filter(
+    (guide) => guide.role === 'guide' || guide.role === 'lead-guide'
+  );
+
+  next();
+});
 
 // QUERY MIDDLEWARE
 tourSchema.pre(/^find/, function (next) {
