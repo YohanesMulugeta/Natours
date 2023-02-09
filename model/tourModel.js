@@ -114,6 +114,13 @@ tourSchema.virtual('durationWeeks').get(function () {
   return +(this.duration / 7).toFixed(2);
 });
 
+// Virtual populate
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour',
+  localField: '_id',
+});
+
 // DOCUMENT MIDDLEWARE runs before the save and create command
 // it doesnt run at insertmany command
 tourSchema.pre('save', function (next) {
