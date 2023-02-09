@@ -25,10 +25,16 @@ const reviewSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: 'User',
       required: [true, 'A review must belong to a user.'],
+      unique: true,
     },
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
+// reviewSchema.pre(/^find/, function (next) {
+//   this.populate('tour author');
+//   next();
+// });
 
 const Review = mongoose.model('Review', reviewSchema);
 
