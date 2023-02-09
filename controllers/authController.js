@@ -40,7 +40,7 @@ const signAndSendToken = (user, statusCode, res) => {
 
 exports.signUp = catchAsync(async (req, res, next) => {
   // 1) recieve onlly the fields we want to store to our user document
-  const { name, email, password, passwordConfirm } = req.body;
+  const { name, email, password, passwordConfirm, role, photo } = req.body;
 
   // 2) create user
   const newUser = await User.create({
@@ -48,6 +48,8 @@ exports.signUp = catchAsync(async (req, res, next) => {
     email,
     password,
     passwordConfirm,
+    role,
+    photo,
   });
 
   signAndSendToken(newUser, 201, res);

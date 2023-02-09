@@ -24,11 +24,7 @@ router
 
     tourController.getAllTours
   )
-  .post(
-    authController.protect,
-    authController.strict,
-    tourController.createNewTour
-  );
+  .post(authController.protect, tourController.createNewTour);
 
 router
   .route('/:id')
@@ -36,7 +32,7 @@ router
   .patch(tourController.updateTour)
   .delete(
     authController.protect,
-    authController.strict('admin', 'lead-guid'),
+    authController.strict('admin', 'lead-guide', 'guide'),
     tourController.deleteTour
   );
 
