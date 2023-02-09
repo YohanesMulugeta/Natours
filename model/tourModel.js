@@ -2,8 +2,6 @@ const mongoose = require('mongoose');
 const slugify = require('slugify');
 // const validator = require('validator');
 
-const User = require('./userModel');
-
 // Modle is like a blue print to create documents
 const tourSchema = new mongoose.Schema(
   {
@@ -107,7 +105,7 @@ const tourSchema = new mongoose.Schema(
         day: Number,
       },
     ],
-    guides: Array,
+    guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
@@ -124,21 +122,28 @@ tourSchema.pre('save', function (next) {
   next();
 });
 
-tourSchema.pre('save', async function (next) {
-  const guides = await Promise.all(this.guides.map((id) => User.findById(id)));
+// tourSchema.pre('save', async function (next) {
+//   const guides = await Promise.all(this.guides.map((id) => User.findById(id)));
 
-  this.guides = guides.filter(
-    (guide) => guide.role === 'guide' || guide.role === 'lead-guide'
-  );
+//   this.guides = guides.filter(
+//     (guide) => guide.role === 'guide' || guide.role === 'lead-guide'
+//   );
 
-  next();
-});
+//   next();
+// });
 
 // QUERY MIDDLEWARE
 tourSchema.pre(/^find/, function (next) {
   // ^ in regular expression means starts with
   this.find({ secretTour: { $ne: true } });
   this.start = Date.now();
+
+  next();
+});
+
+// POPULATE THE GUIDES
+tourSchema.pre(/^find/, function (next) {
+  this.populate({ path: 'guides', select: '-__v -passwordChangedAts' });
 
   next();
 });
