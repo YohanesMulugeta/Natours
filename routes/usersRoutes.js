@@ -25,7 +25,7 @@ router
 
 router
   .route('/:id')
-  .get(usersController.getUserById)
+  .get(usersController.getUser)
   .patch(usersController.updateUser)
   .delete(usersController.deleteUser);
 

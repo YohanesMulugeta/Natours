@@ -6,19 +6,20 @@ const AppError = require('../utils/appError');
 const factory = require('./handleFactory');
 const Tour = require('../model/tourModel');
 
-exports.getAllReviews = catchAsync(async function (req, res, next) {
-  const query = Review.find();
-  if (req.params.tourId) query.find({ tour: req.params.tourId });
+// exports.getAllReviews = catchAsync(async function (req, res, next) {
+//   const query = Review.find();
+//   if (req.params.tourId) query.find({ tour: req.params.tourId });
 
-  const reviews = await query.exec();
+//   const reviews = await query.exec();
 
-  res.status(200).json({
-    status: 'success',
-    results: reviews.length,
-    data: { reviews },
-  });
-});
+//   res.status(200).json({
+//     status: 'success',
+//     results: reviews.length,
+//     data: { reviews },
+//   });
+// });
 
+// factory.getAll(Review);
 exports.setTourAndUserId = catchAsync(async function (req, res, next) {
   // Allow nested routes
   if (!req.body.tour) req.body.tour = req.params.tourId;
@@ -34,6 +35,8 @@ exports.setTourAndUserId = catchAsync(async function (req, res, next) {
   next();
 });
 
+exports.getAllReviews = factory.getAll(Review);
+exports.getReview = factory.getOne(Review);
 exports.createReview = factory.createOne(Review);
 exports.updateReview = factory.updateOne(Review);
 exports.delete = factory.deleteOne(Review);

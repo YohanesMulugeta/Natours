@@ -3,7 +3,7 @@
 
 const Tour = require('../model/tourModel');
 const APIFeatures = require('../utils/apiFeatures');
-const AppError = require('../utils/appError');
+// const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./handleFactory');
 
@@ -15,40 +15,42 @@ exports.aliasTopTours = function (req, res, next) {
   next();
 };
 
-exports.getAllTours = catchAsync(async (req, res, next) => {
-  // 2) EXCUTE QUERY
-  const features = new APIFeatures(Tour.find(), req.query)
-    .filter()
-    .sort()
-    .project()
-    .paginate();
+// catchAsync(async (req, res, next) => {
+//   // 2) EXCUTE QUERY
+//   const features = new APIFeatures(Tour.find(), req.query)
+//     .filter()
+//     .sort()
+//     .project()
+//     .paginate();
 
-  const tours = await features.mongooseQueryObject; // await will cause teh query object to be excuted
+//   const tours = await features.mongooseQueryObject; // await will cause teh query object to be excuted
 
-  // 3) SEND RESPONSE
-  res.status(200).json({
-    status: 'success',
-    results: tours.length,
-    data: { tours },
-  });
-});
+//   // 3) SEND RESPONSE
+//   res.status(200).json({
+//     status: 'success',
+//     results: tours.length,
+//     data: { tours },
+//   });
+// });
 
-exports.getTourById = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
+// catchAsync(async (req, res, next) => {
+//   const { id } = req.params;
 
-  const tour = await Tour.findById(id).populate('reviews');
-  // Tour.findOne({ _id: id })
+//   const tour = await Tour.findById(id).populate('reviews');
+//   // Tour.findOne({ _id: id })
 
-  if (!tour) {
-    return next(new AppError(`No tour with the id ${id}`, 404));
-  }
+//   if (!tour) {
+//     return next(new AppError(`No tour with the id ${id}`, 404));
+//   }
 
-  res.status(200).json({
-    status: 'success',
-    data: { tour },
-  });
-});
+//   res.status(200).json({
+//     status: 'success',
+//     data: { tour },
+//   });
+// });
 
+exports.getAllTours = factory.getAll(Tour);
+exports.getTourById = factory.getOne(Tour, { path: 'reviews', select: '-__v' });
 exports.createNewTour = factory.createOne(Tour);
 exports.updateTour = factory.updateOne(Tour);
 exports.deleteTour = factory.deleteOne(Tour);
