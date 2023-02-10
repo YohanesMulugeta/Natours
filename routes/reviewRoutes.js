@@ -11,6 +11,7 @@ router
   .post(
     authController.protect,
     authController.strict('user'),
+    reviewController.setTourAndUserId,
     reviewController.createReview
   );
 
@@ -20,6 +21,7 @@ router
   .patch(
     authController.protect,
     authController.strict('user'),
+    reviewController.setTourAndUserId,
     reviewController.updateReview
   );
 
