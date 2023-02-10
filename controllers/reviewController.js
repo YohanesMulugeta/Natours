@@ -2,7 +2,7 @@
 /* eslint-disable prefer-arrow-callback */
 const Review = require('../model/reviewModel');
 const catchAsync = require('../utils/catchAsync');
-const AppError = require('../utils/appError');
+const factory = require('./handleFactory');
 
 exports.getAllReviews = catchAsync(async function (req, res, next) {
   const query = Review.find();
@@ -30,15 +30,17 @@ exports.createReview = catchAsync(async function (req, res, next) {
   });
 });
 
-exports.delete = catchAsync(async function (req, res, next) {
-  const { id } = req.params;
+exports.delete = factory.deleteOne(Review);
 
-  const review = await Review.findByIdAndDelete(id);
+// exports.delete = catchAsync(async function (req, res, next) {
+//   const { id } = req.params;
 
-  if (!review)
-    return next(new AppError('No review with the provided id.', 400));
+//   const review = await Review.findByIdAndDelete(id);
 
-  res.status(204).json({
-    status: 'success',
-  });
-});
+//   if (!review)
+//     return next(new AppError('No review with the provided id.', 400));
+
+//   res.status(204).json({
+//     status: 'success',
+//   });
+// });
