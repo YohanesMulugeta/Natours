@@ -2,7 +2,9 @@
 /* eslint-disable prefer-arrow-callback */
 const Review = require('../model/reviewModel');
 const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 const factory = require('./handleFactory');
+const Tour = require('../model/tourModel');
 
 exports.getAllReviews = catchAsync(async function (req, res, next) {
   const query = Review.find();
@@ -17,19 +19,22 @@ exports.getAllReviews = catchAsync(async function (req, res, next) {
   });
 });
 
-exports.createReview = catchAsync(async function (req, res, next) {
+exports.setTourAndUserId = catchAsync(async function (req, res, next) {
   // Allow nested routes
   if (!req.body.tour) req.body.tour = req.params.tourId;
   if (!req.body.author) req.body.author = req.user._id;
 
-  const review = await Review.create(req.body);
+  const tour = await Tour.findById(req.body.tour);
 
-  res.status(201).json({
-    status: 'success',
-    review,
-  });
+  if (!tour)
+    return next(
+      new AppError('No tour with this ID. A review must belong to a Tour.', 400)
+    );
+
+  next();
 });
 
+exports.createReview = factory.createOne(Review);
 exports.updateReview = factory.updateOne(Review);
 exports.delete = factory.deleteOne(Review);
 
