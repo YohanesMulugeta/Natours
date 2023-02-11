@@ -1,13 +1,16 @@
+const mongoose = require('mongoose');
+const fs = require('fs');
 const dotenv = require('dotenv');
+const Tour = require('../../model/tourModel');
+const Review = require('../../model/reviewModel');
+const User = require('../../model/userModel');
 
 dotenv.config({ path: './config.env' });
 
-const fs = require('fs');
-const mongoose = require('mongoose');
-const {
-  clearDatabase,
-  importDataToDatabase,
-} = require('../../controllers/tourController');
+// const {
+//   clearDatabase,
+//   importDataToDatabase,
+// } = require('../../controllers/tourController');
 
 const DB = process.env.DATABASE.replace(
   '<PASSWORD>',
@@ -26,15 +29,38 @@ const DB = process.env.DATABASE.replace(
   // eslint-disable-next-line no-console
   console.log('Database connection is successful!');
 
-  if (process.argv[2] === '--import') {
-    const tours = JSON.parse(
-      fs.readFileSync(`${__dirname}/tours.json`, 'utf-8')
-    );
+  const users = JSON.parse(fs.readFileSync(`${__dirname}/users.json`, 'utf-8'));
+  const reviews = JSON.parse(
+    fs.readFileSync(`${__dirname}/reviews.json`, 'utf-8')
+  );
+  const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours.json`, 'utf-8'));
 
-    importDataToDatabase(tours);
-  } else if (process.argv[2] === '--delete') {
-    clearDatabase();
+  async function importData() {
+    try {
+      await Tour.create(tours);
+      await Review.create(reviews);
+      await User.create(users, { validateBeforeSave: false });
+
+      console.log('Database Populated Successfully.');
+    } catch (err) {
+      console.log(err);
+    }
   }
+
+  async function clearDatabase() {
+    try {
+      await Tour.deleteMany();
+      await User.deleteMany();
+      await Review.deleteMany();
+
+      console.log('database cleared successfully');
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  if (process.argv[2] === '--import') importData();
+  else if (process.argv[2] === '--delete') clearDatabase();
 })();
 
 // DELETE DATABASE

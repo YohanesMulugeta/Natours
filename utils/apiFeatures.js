@@ -47,7 +47,7 @@ class APIFeatures {
     const page = +this.clientQueryString.page || 1;
     const skip = (page - 1) * limit;
 
-    // this.mongooseQueryObject.skip(skip).limit(limit);
+    this.mongooseQueryObject.skip(skip).limit(limit);
 
     return this;
   }

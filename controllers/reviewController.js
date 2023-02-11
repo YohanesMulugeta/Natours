@@ -10,7 +10,7 @@ const Tour = require('../model/tourModel');
 exports.setTourAndUserId = catchAsync(async function (req, res, next) {
   // Allow nested routes
   if (!req.body.tour) req.body.tour = req.params.tourId;
-  if (!req.body.author) req.body.author = req.user._id;
+  if (!req.body.author) req.body.user = req.user._id;
 
   const tour = await Tour.findById(req.body.tour);
 
