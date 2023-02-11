@@ -119,27 +119,27 @@ exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.importDataToDatabase = async function (tours) {
-  try {
-    await Tour.create(tours);
+// exports.importDataToDatabase = async function (Model, data) {
+//   try {
+//     await Model.create(data);
 
-    // eslint-disable-next-line no-console
-    console.log('Tours are exported to mongodb database successfully');
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.log(err);
-  }
-  process.exit();
-};
+//     // eslint-disable-next-line no-console
+//     console.log('Datas are exported to mongodb database successfully');
+//   } catch (err) {
+//     // eslint-disable-next-line no-console
+//     console.log(err);
+//   }
+//   process.exit();
+// };
 
-exports.clearDatabase = async function () {
-  try {
-    await Tour.deleteMany();
-    // eslint-disable-next-line no-console
-    console.log('DataBase is cleared');
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.log(err);
-  }
-  process.exit();
-};
+// exports.clearDatabase = async function (Model) {
+//   try {
+//     await Model.deleteMany();
+//     // eslint-disable-next-line no-console
+//     console.log('DataBase is cleared');
+//   } catch (err) {
+//     // eslint-disable-next-line no-console
+//     console.log(err);
+//   }
+//   process.exit();
+// };
