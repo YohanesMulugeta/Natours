@@ -83,7 +83,8 @@ exports.getAll = (Model) =>
       .project()
       .paginate();
 
-    const docs = await features.mongooseQueryObject;
+    const docs = await features.mongooseQueryObject.explain();
+    // const docs = await features.mongooseQueryObject.explain();
 
     res.status(200).json({
       status: 'success',
