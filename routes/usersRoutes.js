@@ -14,6 +14,12 @@ router.patch(
   authController.protect,
   authController.updatePassword
 );
+router.get(
+  '/me',
+  authController.protect,
+  usersController.getMe,
+  usersController.getUser
+);
 router.patch('/updateMe', authController.protect, usersController.updateMe);
 router.delete('/deleteMe', authController.protect, usersController.deleteMe);
 
@@ -25,7 +31,11 @@ router
 
 router
   .route('/:id')
-  .get(usersController.getUser)
+  .get(
+    authController.protect,
+    authController.strict('admin'),
+    usersController.getUser
+  )
   .patch(usersController.updateUser)
   .delete(usersController.deleteUser);
 

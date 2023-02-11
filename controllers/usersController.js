@@ -14,13 +14,11 @@ const filterObj = (obj, ...fields) => {
   return { ...obj };
 };
 
-// exports.getAllUsers = catchAsync(async (req, res) => {
-//   const users = await User.find();
-//   res.status(200).json({
-//     status: 'Error',
-//     data: { users },
-//   });
-// });
+exports.getMe = (req, res, next) => {
+  req.params.id = req.user._id;
+
+  next();
+};
 
 exports.updateMe = catchAsync(async function (req, res, next) {
   // 1) send error if user is trying to update passwrod data
@@ -72,12 +70,3 @@ exports.getAllUsers = factory.getAll(User);
 exports.getUser = factory.getOne(User);
 exports.updateUser = factory.updateOne(User);
 exports.deleteUser = factory.deleteOne(User);
-
-// exports.deleteUser = catchAsync(async (req, res) => {
-//   const deleted = await User.findByIdAndDelete(req.params.id);
-
-//   res.status(200).json({
-//     status: 'success',
-//     data: { deleted },
-//   });
-// });

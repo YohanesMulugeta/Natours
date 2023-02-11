@@ -6,19 +6,6 @@ const AppError = require('../utils/appError');
 const factory = require('./handleFactory');
 const Tour = require('../model/tourModel');
 
-// exports.getAllReviews = catchAsync(async function (req, res, next) {
-//   const query = Review.find();
-//   if (req.params.tourId) query.find({ tour: req.params.tourId });
-
-//   const reviews = await query.exec();
-
-//   res.status(200).json({
-//     status: 'success',
-//     results: reviews.length,
-//     data: { reviews },
-//   });
-// });
-
 // factory.getAll(Review);
 exports.setTourAndUserId = catchAsync(async function (req, res, next) {
   // Allow nested routes
