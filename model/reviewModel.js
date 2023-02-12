@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Tour = require('./tourModel');
 
 const reviewSchema = new mongoose.Schema(
   {
@@ -36,12 +37,53 @@ reviewSchema.pre(/^find/, function (next) {
     path: 'user',
     select: 'name photo',
   });
+
   //   this.populate({ path: 'tour', select: 'name' }).populate({
   //     path: 'author',
   //     select: 'name photo',
   //   });
   next();
 });
+
+reviewSchema.post('save', function () {
+  // this.constructor points to the class of the object
+  this.constructor.calcRatingStats(this.tour);
+});
+
+reviewSchema.pre(/findOneAnd/, async function (next) {
+  this.review = await this.findOne();
+
+  next();
+});
+
+reviewSchema.post(/findOneAnd/, function (doc) {
+  this.review.constructor.calcRatingStats(this.review.tour);
+});
+
+// The 'this' keyword on statics method points to the class itself
+reviewSchema.statics.calcRatingStats = async function (tourId) {
+  try {
+    const stats = await this.aggregate([
+      {
+        $match: { tour: tourId },
+      },
+      {
+        $group: {
+          _id: '$tour',
+          nRatings: { $sum: 1 },
+          averageRating: { $avg: '$rating' },
+        },
+      },
+    ]);
+
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: stats[0]?.nRatings || 0,
+      ratingsAverage: stats[0]?.averageRating,
+    });
+  } catch (err) {
+    console.log(err);
+  }
+};
 
 const Review = mongoose.model('Review', reviewSchema);
 

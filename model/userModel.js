@@ -81,6 +81,7 @@ userSchema.pre(/^find/, function (next) {
   next();
 });
 
+// This methods are methods that we can call on every doc(instance) of User Model
 userSchema.methods.createPasswordResetToken = async function () {
   const resetToken = crypto.randomBytes(32).toString('hex');
 
