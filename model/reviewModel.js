@@ -26,7 +26,6 @@ const reviewSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: 'User',
       required: [true, 'A review must belong to a user.'],
-      unique: true,
     },
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }
@@ -51,13 +50,14 @@ reviewSchema.post('save', function () {
 });
 
 reviewSchema.pre(/findOneAnd/, async function (next) {
+  // passing data from pre middleware to post middlewares
   this.review = await this.findOne();
 
   next();
 });
 
-reviewSchema.post(/findOneAnd/, function (doc) {
-  this.review.constructor.calcRatingStats(this.review.tour);
+reviewSchema.post(/findOneAnd/, async function (doc) {
+  await this.review.constructor.calcRatingStats(this.review.tour);
 });
 
 // The 'this' keyword on statics method points to the class itself
