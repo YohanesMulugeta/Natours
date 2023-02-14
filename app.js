@@ -71,6 +71,14 @@ app.get('/', (req, res, next) => {
   res.status(200).render('base', { tour: 'The Forest Hiker', user: 'Yohanes' });
 });
 
+app.get('/overview', (req, res, next) => {
+  res.status(200).render('overview', { title: 'All Tours' });
+});
+
+app.get('/tour', (req, res, next) => {
+  res.status(200).render('tour', { title: 'The Sea Explorer' });
+});
+
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', usersRouter);
 app.use('/api/v1/reviews', reviewRouter);
