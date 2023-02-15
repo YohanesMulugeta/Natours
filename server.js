@@ -29,7 +29,7 @@ const DB = process.env.DATABASE.replace(
   console.log('Database connection is successful!');
 })();
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8000;
 const server = app.listen(port, () => {
   console.log(`App runing at port ${port}...`);
 });
