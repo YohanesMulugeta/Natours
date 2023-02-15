@@ -37,6 +37,7 @@ const userSchema = new mongoose.Schema({
       message: 'ConfirmPassword has to be the same as the password.',
     },
   },
+  photo: String,
   passwordChangedAt: String,
   role: {
     type: String,
