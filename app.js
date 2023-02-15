@@ -27,7 +27,18 @@ app.use(express.static(path.join(__dirname, 'public')));
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
 // set SECURITY HTTP headers
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      useDefaults: true,
+      directives: {
+        'script-src': ["'self'", 'https://api.mapbox.com'],
+        'worker-src': ['self', 'data', 'blob:'],
+        'connect-src': ['https://*'],
+      },
+    },
+  })
+);
 
 // Limit REQUESTS from the same IIP
 const limiter = rateLimit({
