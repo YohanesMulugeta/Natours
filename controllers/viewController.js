@@ -26,3 +26,10 @@ exports.getTourDetail = catchAsync(async (req, res, next) => {
 
   res.status(200).render('tour', { title: `${tour.name} Tour`, tour });
 });
+
+exports.getLogin = (req, res, next) => {
+  // 1) build the template
+
+  // 2) render the template
+  res.status(200).render('login', { title: 'Log into your account' });
+};
