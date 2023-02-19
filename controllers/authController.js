@@ -20,10 +20,12 @@ const signAndSendToken = (user, statusCode, res) => {
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
     httpOnly: true, // this prevents client-side scripts from accessing data
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'none',
   };
 
   // this will make sure the cookie will sent to scure connections that is https
-  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+  // if () cookieOptions.secure = true;
 
   res.cookie('jwt', token, cookieOptions);
 

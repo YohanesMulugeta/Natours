@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const cors = require('cors');
 
 const tourRouter = require('./routes/tourRoutes');
 const usersRouter = require('./routes/usersRoutes');
@@ -32,11 +33,22 @@ app.use(
     contentSecurityPolicy: {
       useDefaults: true,
       directives: {
-        'script-src': ["'self'", 'https://api.mapbox.com'],
+        'script-src': [
+          "'self'",
+          'https://api.mapbox.com',
+          'https://cdnjs.cloudflare.com/',
+        ],
         'worker-src': ['self', 'data', 'blob:'],
-        'connect-src': ['https://*'],
+        'connect-src': ['https://*', 'http://127.0.0.1:8000'],
       },
     },
+  })
+);
+
+app.use(
+  cors({
+    origin: 'http://localhost:8000',
+    credentials: true,
   })
 );
 
