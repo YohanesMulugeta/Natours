@@ -6,7 +6,8 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
-const cors = require('cors');
+const cookiePrser = require('cookie-parser');
+// const cors = require('cors');
 
 const tourRouter = require('./routes/tourRoutes');
 const usersRouter = require('./routes/usersRoutes');
@@ -15,6 +16,7 @@ const viewRouter = require('./routes/viewRoutes');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 app.set('view engine', 'pug');
@@ -23,6 +25,7 @@ app.set('views', path.join(__dirname, 'views'));
 // Serving static files
 // app.use(express.static(`${__dirname}/public`));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cookieParser());
 
 // 1) MIDDLEWARE DECLARATION
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
@@ -38,19 +41,23 @@ app.use(
           'https://api.mapbox.com',
           'https://cdnjs.cloudflare.com/',
         ],
-        'worker-src': ['self', 'data', 'blob:'],
-        'connect-src': ['https://*', 'http://127.0.0.1:8000'],
+        'worker-src': ["'self'", 'data', 'blob:'],
+        'connect-src': [
+          "'self'",
+          'https://api.mapbox.com',
+          'https://events.mapbox.com',
+        ],
       },
     },
   })
 );
 
-app.use(
-  cors({
-    origin: 'http://localhost:8000',
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     // origin: 'http://localhost:8000',
+//     // credentials: true,
+//   })
+// );
 
 // Limit REQUESTS from the same IIP
 const limiter = rateLimit({
@@ -86,6 +93,7 @@ app.use(
 // TEST middleware
 app.use((req, res, next) => {
   req.reqTime = new Date().toISOString();
+  console.log(req.cookies);
 
   next();
 });

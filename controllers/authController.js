@@ -21,7 +21,6 @@ const signAndSendToken = (user, statusCode, res) => {
     ),
     httpOnly: true, // this prevents client-side scripts from accessing data
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'none',
   };
 
   // this will make sure the cookie will sent to scure connections that is https
