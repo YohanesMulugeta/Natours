@@ -11,9 +11,17 @@ const login = async (email, password) => {
       }
     );
 
+    if (data.status === 'success') {
+      alert('Logged in successfully');
+
+      setTimeout(() => {
+        console.log('lala');
+        location.assign('/');
+      }, 1500);
+    }
     console.log(data);
   } catch (err) {
-    console.log(err.response);
+    alert(err.response.data.message);
   }
 };
 

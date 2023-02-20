@@ -1,12 +1,12 @@
 const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
-const cookiePrser = require('cookie-parser');
 // const cors = require('cors');
 
 const tourRouter = require('./routes/tourRoutes');
@@ -16,7 +16,6 @@ const viewRouter = require('./routes/viewRoutes');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
-const cookieParser = require('cookie-parser');
 
 const app = express();
 app.set('view engine', 'pug');
@@ -25,7 +24,6 @@ app.set('views', path.join(__dirname, 'views'));
 // Serving static files
 // app.use(express.static(`${__dirname}/public`));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(cookieParser());
 
 // 1) MIDDLEWARE DECLARATION
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
@@ -70,6 +68,7 @@ app.use('/api', limiter);
 
 // Body parser
 app.use(express.json({ limit: '10kb' }));
+app.use(cookieParser());
 
 // DATA SANITIZATION against NOSQL query injections
 app.use(mongoSanitize());
@@ -93,7 +92,7 @@ app.use(
 // TEST middleware
 app.use((req, res, next) => {
   req.reqTime = new Date().toISOString();
-  console.log(req.cookies);
+  // console.log(req.cookies);
 
   next();
 });

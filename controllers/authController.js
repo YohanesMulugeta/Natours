@@ -85,7 +85,8 @@ exports.protect = catchAsync(async (req, res, next) => {
   // 1) Check if the header starts with bearer
   const { authorization } = req.headers;
   const token =
-    authorization?.startsWith('Bearer') && authorization.split(' ')[1];
+    (authorization?.startsWith('Bearer') && authorization.split(' ')[1]) ||
+    req.cookies.jwt;
 
   if (!token)
     return next(
@@ -115,6 +116,30 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // Passing the user to the next middleware
   req.user = user;
+
+  next();
+});
+
+// Only for rendering PAGES
+exports.isLogedIn = catchAsync(async (req, res, next) => {
+  const token = req.cookies.jwt;
+  if (!token) return next();
+
+  // Verify Token
+  const { id, iat } = await promisify(jwt.verify)(
+    token,
+    process.env.JWT_SECRET
+  );
+
+  // 1) check if the user still exists
+  const user = await User.findById(id);
+  if (!user) return next();
+
+  // 2) check if the password is not changed after token issue
+  if (user.isPasswordChangedAfter(iat * 1000)) return next();
+
+  // There is a loged in user
+  res.locals.user = user; // every template has access to response.locals
 
   next();
 });
