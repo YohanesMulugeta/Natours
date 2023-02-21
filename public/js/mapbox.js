@@ -8,7 +8,7 @@ export const displayMap = (locations) => {
     container: 'map', // container ID
     style: 'mapbox://styles/yohanes21/cle72qxev004601q9fdmbazeo/draft', // style URL
     scrollZoom: false,
-    // center: [-80.185942, 25.774772], // starting position [lng, lat]
+    // center: location[0], // starting position [lng, lat]
     // zoom: 2, // starting zoom
     // interactive: false,
   });

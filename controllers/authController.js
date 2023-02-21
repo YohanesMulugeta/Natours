@@ -79,6 +79,18 @@ exports.login = catchAsync(async (req, res, next) => {
   signAndSendToken(user, 200, res);
 });
 
+exports.logout = (req, res) => {
+  res.cookie('jwt', '', {
+    expires: new Date(Date.now() + 10_000),
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+  });
+
+  res.status(200).json({
+    status: 'success',
+  });
+};
+
 // -------------------PROTECT ROUTE
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -121,28 +133,32 @@ exports.protect = catchAsync(async (req, res, next) => {
 });
 
 // Only for rendering PAGES
-exports.isLogedIn = catchAsync(async (req, res, next) => {
-  const token = req.cookies.jwt;
-  if (!token) return next();
+exports.isLogedIn = async (req, res, next) => {
+  try {
+    const token = req.cookies.jwt;
+    if (!token) return next();
 
-  // Verify Token
-  const { id, iat } = await promisify(jwt.verify)(
-    token,
-    process.env.JWT_SECRET
-  );
+    // Verify Token
+    const { id, iat } = await promisify(jwt.verify)(
+      token,
+      process.env.JWT_SECRET
+    );
 
-  // 1) check if the user still exists
-  const user = await User.findById(id);
-  if (!user) return next();
+    // 1) check if the user still exists
+    const user = await User.findById(id);
+    if (!user) return next();
 
-  // 2) check if the password is not changed after token issue
-  if (user.isPasswordChangedAfter(iat * 1000)) return next();
+    // 2) check if the password is not changed after token issue
+    if (user.isPasswordChangedAfter(iat * 1000)) return next();
 
-  // There is a loged in user
-  res.locals.user = user; // every template has access to response.locals
+    // There is a loged in user
+    res.locals.user = user; // every template has access to response.locals
 
-  next();
-});
+    next();
+  } catch (err) {
+    return next();
+  }
+};
 
 // ------------------STRICT USER
 

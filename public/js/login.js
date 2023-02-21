@@ -20,8 +20,20 @@ export const login = async (email, password) => {
         location.assign('/');
       }, 1500);
     }
-    console.log(data);
   } catch (err) {
     showAlert('error', err.response.data.message);
+  }
+};
+
+export const logout = async () => {
+  try {
+    const res = await axios.get('http://127.0.0.1:8000/api/v1/users/logout');
+    showAlert('success', 'Success fully loged out');
+
+    setTimeout(() => {
+      location.reload(true);
+    }, 1000);
+  } catch (err) {
+    showAlert('error', 'Error on logout.');
   }
 };
