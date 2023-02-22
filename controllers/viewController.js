@@ -41,3 +41,7 @@ exports.getLogin = (req, res, next) => {
   // 2) render the template
   res.status(200).render('login', { title: 'Log into your account' });
 };
+
+exports.me = catchAsync(async (req, res, next) => {
+  res.status(200).render('account', { title: 'Your Account' });
+});
