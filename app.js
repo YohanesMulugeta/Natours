@@ -104,7 +104,10 @@ app.use('/api/v1/users', usersRouter);
 app.use('/api/v1/reviews', reviewRouter);
 
 app.all('*', (req, res, next) => {
-  const err = new AppError(`Can't find ${req.originalUrl} on this server`, 404);
+  const err = new AppError(
+    `Can't find "${req.originalUrl}" on this server`,
+    404
+  );
 
   next(err);
 });

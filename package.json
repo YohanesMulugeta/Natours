@@ -5,9 +5,9 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js set NODE_ENV=development",
+    "start": "nodemon server.js",
     "debug": "ndb server.js",
-    "start:pro": "NODE_ENV=production nodemon server.js",
+    "start:pro": "nodemon server.js",
     "watch:js": "parcel watch ./public/js/index.js --out-dir ./public/js --out-file bundle.js"
   },
   "author": "Yohanes",

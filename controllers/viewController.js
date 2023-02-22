@@ -1,4 +1,5 @@
 const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 const Tour = require('../model/tourModel');
 
 exports.getOverview = catchAsync(async (req, res, next) => {
@@ -20,6 +21,13 @@ exports.getTourDetail = catchAsync(async (req, res, next) => {
     select: 'review rating user',
   });
 
+  if (!tour)
+    return next(
+      new AppError(
+        `There is no tour with name "${slug.split('-').join(' ')}"`,
+        404
+      )
+    );
   //   2)BUILD THE TEMPLATE
 
   //   3)RENDER THE TEMPLATE USING THE TOURdATA FROM 1

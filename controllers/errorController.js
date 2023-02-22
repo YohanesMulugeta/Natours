@@ -29,42 +29,59 @@ function handleExpiredToken() {
   return new AppError('You are no longer loged in. Please login again', 401);
 }
 
-function sendErrorDev(err, res) {
-  res.status(err.statusCode).json({
-    status: err.status,
-    error: err,
-    message: err.message,
-    stack: err.stack,
-  });
+function sendErrorDev(err, req, res) {
+  if (req.originalUrl.startsWith('/api'))
+    return res.status(err.statusCode).json({
+      status: err.status,
+      error: err,
+      message: err.message,
+      stack: err.stack,
+    });
+
+  res
+    .status(err.statusCode)
+    .render('error', { title: 'Something went wrong!', msg: err.message });
 }
 
-function sendErrorPro(err, res) {
+function sendErrorPro(err, req, res) {
+  // A) API
   // Trusted operational errors
-  if (err.isOperatiional) {
-    res.status(err.statusCode).json({
-      status: err.status,
-      message: err.message,
-    });
-  } else {
-    // UNKOWN errors so that we dont want to send errors to the client
-
-    // 1) log the error
-    // console.error('ERROR', err);
-
+  if (req.originalUrl.startsWith('/api')) {
+    if (err.isOperational) {
+      return res.status(err.statusCode).json({
+        status: err.status,
+        message: err.message,
+      });
+    }
+    console.log('ERROR', err);
     // 2) send generic responses
-    res.status(500).json({
+    return res.status(500).json({
       status: 'fail',
       message: 'Something went out very wrong, please try again',
     });
   }
+
+  // B) RENDERED
+  if (err.isOperational)
+    return res.status(err.statusCode).render('error', {
+      title: 'Something went wrong.',
+      msg: err.message,
+    });
+
+  return res.status(err.statusCode).render('error', {
+    title: 'Something went wrong.',
+    msg: 'Please try again',
+  });
 }
 
 module.exports = function (err, req, res, next) {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'Error';
-  let error = { ...err };
+
+  let error = { ...err, message: err.message };
+
   if (process.env.NODE_ENV === 'development') {
-    sendErrorDev(err, res);
+    sendErrorDev(err, req, res);
   }
   // console.log(err.name);
   if (err.code === 11000) error = handleDuplicateFields(err);
@@ -73,6 +90,6 @@ module.exports = function (err, req, res, next) {
   if (err.name === 'JsonWebTokenError') error = handleJasonWebTokenError();
   if (err.name === 'TokenExpiredError') error = handleExpiredToken();
   if (process.env.NODE_ENV === 'production') {
-    sendErrorPro(error, res);
+    sendErrorPro(error, req, res);
   }
 };
