@@ -237,6 +237,7 @@ exports.resetPassword = catchAsync(async function (req, res, next) {
 // -----------------UPDATE PASSWORD
 exports.updatePassword = catchAsync(async function (req, res, next) {
   const { password, newPassword, passwordConfirm } = req.body;
+  console.log(password);
   const user = await User.findById(req.user._id).select('+password');
 
   // 1) check if both the fields are here

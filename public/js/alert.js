@@ -10,3 +10,4 @@ export const showAlert = (type, message) => {
     removeAlert();
   }, 4000);
 };
+  
