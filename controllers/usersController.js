@@ -1,10 +1,38 @@
 /* eslint-disable node/no-unsupported-features/es-syntax */
 /* eslint-disable prefer-arrow-callback */
 // 1) USERS ROUTES HANDLERS
+const multer = require('multer');
 const User = require('../model/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const factory = require('./handleFactory');
+
+// MULTER RELATED
+const multerStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'public/img/users');
+  },
+  filename: function (req, file, cb) {
+    // user-userId-currentTimeStamp
+    const extension = file.mimetype.split('/')[1];
+
+    cb(null, `user-${req.user._id}-${Date.now()}.${extension}`);
+  },
+});
+
+const multerFilter = (req, file, cb) => {
+  const isImage = file.mimetype.startsWith('image');
+  const error = isImage
+    ? null
+    : new AppError('Not Image! Please upload only image.', 400);
+
+  cb(error, isImage);
+};
+
+const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
+
+// Image UPLOAD
+exports.uploadUserPhoto = upload.single('photo');
 
 const filterObj = (obj, ...fields) => {
   fields.forEach((field) => {

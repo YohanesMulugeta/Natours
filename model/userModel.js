@@ -103,7 +103,6 @@ userSchema.methods.isPasswordChangedAfter = function (tokenIssueDate) {
 };
 
 userSchema.methods.isCorrect = async function (candidatePassword) {
-  console.log(this.password);
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
