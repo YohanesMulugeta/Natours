@@ -1,10 +1,9 @@
+/* eslint-disable no-unused-expressions */
 /* eslint-disable node/no-unsupported-features/es-syntax */
 /* eslint-disable prefer-arrow-callback */
 // 1) USERS ROUTES HANDLERS
 const multer = require('multer');
 const sharp = require('sharp');
-const fs = require('fs');
-const { promisify } = require('util');
 
 const User = require('../model/userModel');
 const catchAsync = require('../utils/catchAsync');
@@ -95,7 +94,8 @@ exports.updateMe = catchAsync(async function (req, res, next) {
     'passwordChangedAt'
   );
 
-  if (req.file) filteredData.photo = req.file.filename;
+  req.file && (filteredData.photo = req.file.filename);
+  filteredData.email && (filteredData.email = filteredData.email.toLowerCase());
 
   // 3) update user and also run validators
   const user = await User.findByIdAndUpdate(req.user._id, filteredData, {

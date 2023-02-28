@@ -10,6 +10,7 @@ const loginForm = document.querySelector('.form--login');
 const logoutBtn = document.querySelector('.nav__el--logout');
 const dataForm = document.querySelector('.form-user-data');
 const settingsForm = document.querySelector('.form-user-settings');
+const photoField = document.getElementById('photo');
 
 // VALUES
 
@@ -33,17 +34,16 @@ if (loginForm) {
 logoutBtn?.addEventListener('click', logout);
 dataForm?.addEventListener('submit', (e) => {
   e.preventDefault();
+  const form = new FormData();
+  form.append('name', document.getElementById('name').value);
+  form.append('email', document.getElementById('email').value.toLowerCase());
+  photoField.files.length && form.append('photo', photoField.files[0]);
 
-  const name = document.getElementById('name').value;
-  const email = document.getElementById('email').value;
-
-  updateSettings({ name, email }, 'data');
+  updateSettings(form, 'data');
 });
 
 settingsForm?.addEventListener('submit', async (e) => {
   e.preventDefault();
-
-  console.log(e.target);
 
   const password = document.getElementById('password-current').value;
   const newPassword = document.getElementById('password').value;
@@ -63,3 +63,7 @@ settingsForm?.addEventListener('submit', async (e) => {
 
   btn.innerHTML = 'Save password';
 });
+
+// photoField?.addEventListener('change', (e) => {
+//   userPic.setAttribute('src', e.target.value);
+// });

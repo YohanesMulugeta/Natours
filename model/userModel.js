@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'A user must have a user'],
     unque: [true, 'There is a use with this email.'],
+    lowercase: true,
     validate: {
       validator: function (email) {
         return validator.isEmail(email);
