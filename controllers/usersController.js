@@ -2,23 +2,30 @@
 /* eslint-disable prefer-arrow-callback */
 // 1) USERS ROUTES HANDLERS
 const multer = require('multer');
+const sharp = require('sharp');
+const fs = require('fs');
+const { promisify } = require('util');
+
 const User = require('../model/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const factory = require('./handleFactory');
 
-// MULTER RELATED
-const multerStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'public/img/users');
-  },
-  filename: function (req, file, cb) {
-    // user-userId-currentTimeStamp
-    const extension = file.mimetype.split('/')[1];
+// ---------------MULTER RELATED
+// const multerStorage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, 'public/img/users');
+//   },
+//   filename: function (req, file, cb) {
+//     // user-userId-currentTimeStamp
+//     const extension = file.mimetype.split('/')[1];
+//     cb(null, `user-${req.user._id}-${Date.now()}.${extension}`);
+//   },
+// });
 
-    cb(null, `user-${req.user._id}-${Date.now()}.${extension}`);
-  },
-});
+// best used for precessing images
+const multerStorage = multer.memoryStorage();
+// the buffer is find inside req.file.buffer
 
 const multerFilter = (req, file, cb) => {
   const isImage = file.mimetype.startsWith('image');
@@ -33,6 +40,23 @@ const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
 
 // Image UPLOAD
 exports.uploadUserPhoto = upload.single('photo');
+
+// ------------------- RESIZE-PHOTO
+exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
+  if (!req.file) return next();
+
+  req.file.filename = `user-${req.user._id}-${Date.now()}.jpeg`;
+  sharp(req.file.buffer)
+    .resize(500, 500, {
+      fit: 'cover',
+      position: 'left top',
+    })
+    .toFormat('jpeg')
+    .jpeg({ quality: 90 })
+    .toFile(`public/img/users/${req.file.filename}`);
+
+  next();
+});
 
 const filterObj = (obj, ...fields) => {
   fields.forEach((field) => {
@@ -50,7 +74,9 @@ exports.getMe = (req, res, next) => {
 
 exports.updateMe = catchAsync(async function (req, res, next) {
   // 1) send error if user is trying to update passwrod data
+
   const data = req.body;
+
   if (data.password || data.passwordConfirm)
     return next(
       new AppError(
@@ -68,6 +94,8 @@ exports.updateMe = catchAsync(async function (req, res, next) {
     'passwordResetToken',
     'passwordChangedAt'
   );
+
+  if (req.file) filteredData.photo = req.file.filename;
 
   // 3) update user and also run validators
   const user = await User.findByIdAndUpdate(req.user._id, filteredData, {

@@ -20,17 +20,16 @@ router.get('/me', usersController.getMe, usersController.getUser);
 router.patch(
   '/updateMe',
   usersController.uploadUserPhoto,
+  usersController.resizeUserPhoto,
   usersController.updateMe
 );
 router.delete('/deleteMe', usersController.deleteMe);
 
 // STRICT ALL ROUTES after this to ADMIN
+router.get('/', usersController.getAllUsers);
 router.use(authController.strict('admin'));
 
-router
-  .route('/')
-  .get(usersController.getAllUsers)
-  .post(usersController.createUser);
+router.route('/').post(usersController.createUser);
 
 router
   .route('/:id')
