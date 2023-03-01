@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const AppError = require('../utils/appError');
 const User = require('../model/userModel');
 const catchAsync = require('../utils/catchAsync');
-const sendMail = require('../utils/sendEmail');
+const Email = require('../utils/sendEmail');
 
 const sign = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -53,6 +53,9 @@ exports.signUp = catchAsync(async (req, res, next) => {
     role,
     photo,
   });
+  const url = `${req.protocol}://${req.get('host')}/me`;
+
+  await new Email(newUser, url).sendWelcome();
 
   signAndSendToken(newUser, 201, res);
 });
@@ -197,7 +200,7 @@ exports.forgotPassword = catchAsync(async function (req, res, next) {
   const passwordResetLink = `Forgot your password? Submit a patch request with your new password and password confirm to:${req.baseUrl}/resetPassword/${resetToken} \nAnd if you dont forget your password please ignore this message`;
   const subject = `Your password reset link. (Valid for 10 minutes)`;
 
-  await sendMail('yohanesMulugeta21@gmail.com', subject, passwordResetLink);
+  // await sendMail('yohanesMulugeta21@gmail.com', subject, passwordResetLink);
 
   res.status(200).json({
     status: 'success',
