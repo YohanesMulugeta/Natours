@@ -1,11 +1,78 @@
+/* eslint-disable no-unused-expressions */
 /* eslint-disable prefer-object-spread */
 /* eslint-disable node/no-unsupported-features/es-syntax */
+const multer = require('multer');
+const sharp = require('sharp');
 
 const Tour = require('../model/tourModel');
-const APIFeatures = require('../utils/apiFeatures');
-// const AppError = require('../utils/appError');
+const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./handleFactory');
+
+// --------------------- IMAGE-UPLOAD
+const multerStorage = multer.memoryStorage();
+// the buffer is find inside req.file.buffer
+
+const multerFilter = (req, file, cb) => {
+  const isImage = file.mimetype.startsWith('image');
+  const error = isImage
+    ? null
+    : new AppError('Not Image! Please upload only image.', 400);
+
+  cb(error, isImage);
+};
+
+const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
+
+// Image UPLOAD
+exports.uploadTourImages = upload.fields([
+  { name: 'imageCover', maxCount: 1 },
+  { name: 'images', maxCount: 3 },
+]);
+
+// ----------------- IMAGE-PROCESSESING
+exports.resizeTourImages = catchAsync(async (req, res, next) => {
+  if (!req.files.imageCover && !req.files.images) return next();
+
+  // 1) Cover-Image
+  function processImage(buffer, imgName) {
+    return sharp(buffer)
+      .resize(2000, 1333)
+      .toFormat('jpeg')
+      .jpeg({ quality: 90 })
+      .toFile(`public/img/tours/${imgName}`);
+  }
+
+  if (req.files.imageCover) {
+    const imageConverFileName = `tour-${
+      req.params.id
+    }-${Date.now()}-cover.jpeg`;
+
+    await processImage(req.files.imageCover[0].buffer, imageConverFileName);
+
+    req.body.imageCover = imageConverFileName;
+  }
+
+  if (req.files.images) {
+    const images = [];
+
+    await Promise.all(
+      req.files.images.map((img, i) => {
+        const imgName = `tour-${req.id}-${Date.now()}-${i + 1}.jpeg`;
+        images.push(imgName);
+
+        return processImage(img.buffer, imgName);
+      })
+    );
+
+    req.body.images = [...images];
+  }
+
+  next();
+});
+
+// SINGLE=> upload.single('feildName')
+// many from ONE FIELD=> upload.array('feildName',MAX_COUNT)
 
 exports.aliasTopTours = function (req, res, next) {
   req.query.limit = '5';
@@ -14,40 +81,6 @@ exports.aliasTopTours = function (req, res, next) {
 
   next();
 };
-
-// catchAsync(async (req, res, next) => {
-//   // 2) EXCUTE QUERY
-//   const features = new APIFeatures(Tour.find(), req.query)
-//     .filter()
-//     .sort()
-//     .project()
-//     .paginate();
-
-//   const tours = await features.mongooseQueryObject; // await will cause teh query object to be excuted
-
-//   // 3) SEND RESPONSE
-//   res.status(200).json({
-//     status: 'success',
-//     results: tours.length,
-//     data: { tours },
-//   });
-// });
-
-// catchAsync(async (req, res, next) => {
-//   const { id } = req.params;
-
-//   const tour = await Tour.findById(id).populate('reviews');
-//   // Tour.findOne({ _id: id })
-
-//   if (!tour) {
-//     return next(new AppError(`No tour with the id ${id}`, 404));
-//   }
-
-//   res.status(200).json({
-//     status: 'success',
-//     data: { tour },
-//   });
-// });
 
 exports.getAllTours = factory.getAll(Tour);
 exports.getTourById = factory.getOne(Tour, { path: 'reviews', select: '-__v' });

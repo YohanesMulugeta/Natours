@@ -22,6 +22,7 @@ const factory = require('./handleFactory');
 //   },
 // });
 
+// ---------------------- Multer-config
 // best used for precessing images
 const multerStorage = multer.memoryStorage();
 // the buffer is find inside req.file.buffer
@@ -45,7 +46,8 @@ exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
   if (!req.file) return next();
 
   req.file.filename = `user-${req.user._id}-${Date.now()}.jpeg`;
-  sharp(req.file.buffer)
+
+  await sharp(req.file.buffer)
     .resize(500, 500, {
       fit: 'cover',
       position: 'left top',
