@@ -1,32 +1,52 @@
 const nodemailer = require('nodemailer');
+const pug = require('pug');
+const htmlToText = require('html-to-text');
 
-async function sendMail(to, subject, text) {
-  const { MAIL_HOST, MAIL_PORT, MAIL_USER, MAIL_PASSWORD, MAIL_SECTURE } =
-    process.env;
+module.exports = class Email {
+  constructor(user, url) {
+    this.to = user.Email;
+    this.firstName = user.name.split(' ')[0];
+    this.url = url;
+    this.from = `Yohanes Mulugeta <${process.env.EMAIL_FROM}>`;
+  }
 
-  // 1)create transporter
-  const transporter = nodemailer.createTransport({
-    host: MAIL_HOST,
-    port: MAIL_PORT,
-    secure: MAIL_SECTURE,
-    auth: {
-      user: MAIL_USER,
-      pass: MAIL_PASSWORD,
-    },
-  });
+  createNewTransport() {
+    if (process.env.NODE_ENV === 'production') {
+      return 'space';
+    }
+    return nodemailer.createTransport({
+      host: process.env.MAIL_HOST,
+      port: process.env.MAIL_PORT,
+      secure: process.env.MAIL_SECTURE,
+      auth: {
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASSWORD,
+      },
+    });
+  }
 
-  // 2) configuret mailer options
-  const messageOpt = {
-    from: 'Best regards <yohanesmulugeta21@gmail.com>',
-    to,
-    subject,
-    text,
-  };
+  async send(template, subject) {
+    // SENDTHE ACTUAL EMAIL
+    // 1) render HTML based on the pug temlate
+    const html = pug.renderFile(
+      `${__dirname}/../views/emails/${template}.pug`,
+      { title: 'Welcome', firstName: this.firstName, url: this.url, subject }
+    );
 
-  // 3) send mail
-  const info = await transporter.sendMail(messageOpt);
+    // 2) Define the email options
+    const messageOpt = {
+      from: this.from,
+      to: this.to,
+      subject,
+      html,
+      text: htmlToText.fromString(html),
+    };
 
-  return info;
-}
+    // 3) create a transport and send email
+    await this.createNewTransport().sendMail(messageOpt);
+  }
 
-module.exports = sendMail;
+  async sendWelcome() {
+    await this.send('welcome', 'Welcome to the Natours Family.');
+  }
+};
