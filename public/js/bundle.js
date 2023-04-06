@@ -12338,6 +12338,7 @@ dataForm === null || dataForm === void 0 ? void 0 : dataForm.addEventListener('s
   form.append('name', document.getElementById('name').value);
   form.append('email', document.getElementById('email').value.toLowerCase());
   photoField.files.length && form.append('photo', photoField.files[0]);
+  console.log(form);
   (0, _updateSettings.updateSettings)(form, 'data');
 });
 settingsForm === null || settingsForm === void 0 ? void 0 : settingsForm.addEventListener('submit', /*#__PURE__*/function () {
@@ -12406,7 +12407,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62429" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52744" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
